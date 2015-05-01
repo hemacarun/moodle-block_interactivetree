@@ -1,0 +1,78 @@
+
+/** JavaScript state rules **/
+.jsenabled .block_interactivetree.dock_on_load,
+.block_interactivetree .block_tree_box .requiresjs {display:none;}
+.jsenabled .block_interactivetree .block_tree_box .requiresjs {display:inline;}
+
+/** Internet explorer specific rules **/
+.ie6 .block_interactivetree .block_tree .tree_item {width:100%;}
+
+/** Overide for RTL layout *
+.dir-rtl .block_interactivetree .block_tree li.depth_2 ul {padding-left:0;padding-right: 7px;}
+.dir-rtl .block_interactivetree .block_tree .tree_item {padding-right: 18px;text-align:right;}
+
+.dir-rtl .block_interactivetree .block_tree .tree_item.branch {background-position: center right;}
+
+.dir-rtl .block_interactivetree .block_tree,
+.dir-rtl .block_interactivetree .block_tree li ul,
+.dir-rtl .block_interactivetree .block_tree .navigation_node.tree_item.branch,
+.dir-rtl .block_interactivetree .block_tree .root_node.leaf {padding-right:0;}
+
+.dir-rtl .block_interactivetree .block_tree li.item_with_icon > p img,
+.dir-rtl .block_interactivetree .block_tree .type_activity > .tree_item.branch img {right:0;left:auto;}
+
+.jsenabled.dir-rtl .block_interactivetree .block_tree .tree_item.emptybranch {background-image: url([[pix:t/collapsed_empty_rtl]]);background-position: center right;}
+.jsenabled.dir-rtl .block_interactivetree .block_tree .collapsed .tree_item.branch {background-image: url([[pix:t/collapsed_rtl]]);}*/
+
+div#fitem_id_nosubmit_checkbox_controllergroup1 .fsubmit, div#fitem_id_nosubmit_checkbox_controllergroup2 .fsubmit{
+    text-align: left;
+}
+
+/* highlighting the leaf node */
+p.tree_item.branch.hasicon.active_tree_node{
+    /*font-weight: bold !important;*/
+    color:none !important;
+}
+
+.usdimmed_text(){
+    color:black;
+    font-weight: bold;
+}
+
+
+html, body { background:#ebebeb; font-size:10px; font-family:Verdana; margin:0; padding:0; }
+#container { min-width:100%; margin:0px auto 0 auto;  border-radius:0px; padding:0px; overflow:hidden; }
+#tree { float:left; min-width:100%; border-right:1px solid silver; overflow:auto; padding:0px 0; }
+#data { margin-left:320px; }
+#data textarea { margin:0; padding:0; height:100%; width:100%; border:0; background:white; display:block; line-height:18px; }
+#data, #code { font: normal normal normal 12px/18px 'Consolas', monospace !important; }
+
+
+
+.jstree-default a { 
+    white-space:normal !important; height: auto; 
+}
+.jstree-anchor {
+    height: auto !important;
+}
+.jstree-default li > ins { 
+    vertical-align:top; 
+}
+.jstree-leaf {
+    height: auto;
+}
+.jstree-leaf a{
+    height: auto !important;
+}
+
+div#container {
+    height: auto !important;
+}
+
+div#tree {
+    height: auto !important;
+}
+
+div#data {
+    height: auto!important;
+}
