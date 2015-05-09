@@ -91,25 +91,25 @@ class block_interactivetree extends block_base {
     function instance_can_be_docked() {
         return (!empty($this->title) && parent::instance_can_be_docked());
 
-      
+
     }
 
     function get_required_javascript() {
         global $DB, $CFG, $PAGE;
         $PAGE->requires->jquery();
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js');
-        
-        if (is_siteadmin()) 
-         $PAGE->requires->js('/blocks/interactivetree/js/custom.js');         
+
+        if (is_siteadmin())
+         $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
         else
-         $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');   
+         $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
     }
 
     function interactivetree_addurl() {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE;
         $formcontent = $this->config;
 	if(isset($formcontent)){
-	
+
         foreach ($formcontent as $key => $value) {
             if ($key != 'node') {
                 $temp = new stdClass();
@@ -160,11 +160,11 @@ class block_interactivetree extends block_base {
 			<div id="tree"></div>
 			<div id="data">
 				<div class="content code" style="display:none;"><textarea id="code" readonly="readonly"></textarea></div>
-				
-				
+
+
 			</div>
 		</div>';
-  
+
 
             return $this->content;
         }

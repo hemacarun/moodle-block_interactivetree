@@ -41,7 +41,7 @@
 .jstree-icon:empty {
   display: inline-block;
   text-decoration: none;
-  margin: 0;
+  margin-right: -12px !important;
   padding: 0;
   vertical-align: top;
   text-align: center;

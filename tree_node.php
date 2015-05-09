@@ -34,7 +34,7 @@ if (isset($opertaion)) {
                     if($treeinfo->url!=NULL)
                      $url=$treeinfo->url;
                     else
-                     $url='#';  
+                     $url='#';
                     $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1), 'a_attr' => array('href' => $url));
                 }
                 // print_object($rslt);

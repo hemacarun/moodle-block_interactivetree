@@ -10,48 +10,44 @@ $(function () {
                     'data': {
                         'url': M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_node',
                         'data': function (node) {
-                          //  alert(node.text);
-                          //  alert(JSON.stringify(node));
-                           
-
                             return {'id':node.id }
                         }
 
                     },
-                
+
                     'check_callback': true,
                     'themes': {
                         'responsive': false
                     }
-                    
+
                 },
-                'plugins': ['state', 'dnd', 'contextmenu', 'wholerow','Types'],
-                 'types': {
-        'types' : {
-            'file' : {
-                'icon' : {
-                    'image' : 'none'
-                }
-            },
-            'default' : {
-                'icon' : {
-                    'image' : 'none'
-                },
-                'valid_children' : 'none'
-            }
-        }
-    }     
+              
+              "types" : {
+    "#" : {
+     
+      "valid_children" : ["root"]
+    },
+    "root" : {
+      "icon" :'none',
+      "valid_children" : ["file"]
+    },
+  "default" : {
+        "icon":'none',
+      "valid_children" : []
+    },
+  },
+    'plugins': ['state', 'dnd', 'contextmenu', 'wholerow','types'],
             })
-            
+
        .bind("select_node.jstree", function (e, data) {
         var href = data.node.a_attr.href;
        $(".jstree-anchor").click(function()
        {
-       document.location.href = this; 
+       document.location.href = this;
         });
         // document.location.href = href;
    })
- 
+
 
 
             .on('delete_node.jstree', function (e, data) {
@@ -100,6 +96,6 @@ $(function () {
                     $('#data .default').html('Select a file from the tree.').show();
                 }
             });
-            
-            
+
+
 });

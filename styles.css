@@ -49,14 +49,14 @@ html, body { background:#ebebeb; font-size:10px; font-family:Verdana; margin:0; 
 
 
 
-.jstree-default a { 
-    white-space:normal !important; height: auto; 
+.jstree-default a {
+    white-space:normal !important; height: auto;
 }
 .jstree-anchor {
     height: auto !important;
 }
-.jstree-default li > ins { 
-    vertical-align:top; 
+.jstree-default li > ins {
+    vertical-align:top;
 }
 .jstree-leaf {
     height: auto;
