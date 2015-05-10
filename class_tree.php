@@ -668,6 +668,13 @@ class tree {
         $pid = $data->$osparentid;
         $pos = $data->$ospos;
         $dif = $rgt - $lft + 1;
+	
+	if($id){
+	    $children_exists=$DB->get_records('tree_struct',array('pid'=>$id));
+	    if($children_exists)
+	   throw new Exception('could not remove');
+	    
+	}
 
         $sql = array();
         // deleting node and its children from structure

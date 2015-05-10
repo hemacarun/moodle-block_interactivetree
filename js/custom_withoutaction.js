@@ -23,20 +23,13 @@ $(function () {
                 },
               
               "types" : {
-    "#" : {
-     
-      "valid_children" : ["root"]
-    },
-    "root" : {
-      "icon" :'none',
-      "valid_children" : ["file"]
-    },
+   
   "default" : {
         "icon":'none',
-      "valid_children" : []
+    
     },
   },
-    'plugins': ['state', 'wholerow','types'],
+    'plugins': ['state', 'wholerow','types']
             })
 
        .bind("select_node.jstree", function (e, data) {

@@ -45,7 +45,7 @@ class block_interactivetree_edit_form extends block_edit_form {
                 $nodename = $nodeinfo->nm;
                 $nodeid = $nodeinfo->id;
                 
-                $availablefromgroup[] = $mform->createElement('static', 'description', '',  $nodename,array('style'=>'width:35%'));
+                $availablefromgroup[] = $mform->createElement('static', 'config_description', '',  $nodename,array('style'=>'width:35%'));
                 $availablefromgroup[] = $mform->createElement('text', 'config_' . $nodeid, $nodeid, array('placeholder' =>'add url to '.$nodename,'style'=>'width:40%'));
                // $mform->addHelpButton('config_' . $nodeid, 'status', 'enrol_manual');
             }

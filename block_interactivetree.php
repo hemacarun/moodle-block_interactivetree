@@ -114,12 +114,14 @@ class block_interactivetree extends block_base {
             if ($key != 'node') {
                 $temp = new stdClass();
                 $exists_data = $DB->get_record('tree_data', array('id' => $key));
+		if(isset($exists_data->url)){
                 if ($exists_data->url != $value && !empty($value)) {
                     $temp->id = $key;
                     $temp->nm = $exists_data->nm;
                     $temp->url = $value;
                     $updatedrecordid = $DB->update_record('tree_data', $temp);
                 }
+		}
             }
         }
 	}

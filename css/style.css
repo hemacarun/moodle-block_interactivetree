@@ -402,6 +402,7 @@
   width: 24px;
   height: 24px;
   line-height: 24px;
+  margin-right:-13px !important;
 }
 .jstree-default.jstree-rtl .jstree-node {
   margin-right: 24px;

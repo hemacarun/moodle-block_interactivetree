@@ -31,10 +31,12 @@ if (isset($opertaion)) {
                 $rslt = array();
                 foreach ($temp as $v) {
                     $treeinfo = $DB->get_record('tree_data', array('id' => $v->id));
-                    if($treeinfo->url!=NULL)
+                    if($treeinfo->url!=null)
                      $url=$treeinfo->url;
                     else
                      $url='#';
+                     
+                  
                     $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1), 'a_attr' => array('href' => $url));
                 }
                 // print_object($rslt);
