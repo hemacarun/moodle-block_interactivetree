@@ -18,7 +18,7 @@ Installation Process:
 4.Using configuration link, we can add link to those nodes
 
 
-Ex: If you have course like java,php etc, under that have number of topics , In that scenario , we can easily create create tree structure block root node as course and topics as leaf nodes.
+Ex: If you have course like java,php etc, under that have number of topics , In that scenario , we can easily create  tree structure block root node as course and topics as leaf nodes.
 This is very helpful and easy to create custom tree structure block.
 
 Users:
