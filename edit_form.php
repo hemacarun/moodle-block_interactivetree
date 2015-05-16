@@ -49,7 +49,7 @@ class block_interactivetree_edit_form extends block_edit_form {
                 $availablefromgroup[] = $mform->createElement('text', 'config_' . $nodeid, $nodeid, array('placeholder' =>'add url to '.$nodename,'style'=>'width:40%'));
                // $mform->addHelpButton('config_' . $nodeid, 'status', 'enrol_manual');
             }
-            $group = $mform->createElement('group', 'config_group', 'group1', $availablefromgroup, null, false);
+            $group = $mform->createElement('group', 'config_group', 'group1', $availablefromgroup, array('&nbsp;&nbsp; &nbsp;','</br>'), false);
             $mform->insertElementBefore($group, 'addurlplace');
         }
     }

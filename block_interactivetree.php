@@ -90,8 +90,6 @@ class block_interactivetree extends block_base {
 
     function instance_can_be_docked() {
         return (!empty($this->title) && parent::instance_can_be_docked());
-
-
     }
 
     function get_required_javascript() {
@@ -100,31 +98,30 @@ class block_interactivetree extends block_base {
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js');
 
         if (is_siteadmin())
-         $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
+            $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
         else
-         $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
+            $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
     }
 
     function interactivetree_addurl() {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE;
         $formcontent = $this->config;
-	if(isset($formcontent)){
 
-        foreach ($formcontent as $key => $value) {
-            if ($key != 'node') {
+        if (isset($formcontent->node)) {
+            foreach ($formcontent->node as $key => $value) {
+
                 $temp = new stdClass();
-                $exists_data = $DB->get_record('tree_data', array('id' => $key));
-		if(isset($exists_data->url)){
-                if ($exists_data->url != $value && !empty($value)) {
-                    $temp->id = $key;
+                $exists_data = $DB->get_record('tree_data', array('id' => $value));
+
+                if ($exists_data->url != $formcontent->$value && !empty($formcontent->$value)) {
+
+                    $temp->id = $value;
                     $temp->nm = $exists_data->nm;
-                    $temp->url = $value;
+                    $temp->url = $formcontent->$value;
                     $updatedrecordid = $DB->update_record('tree_data', $temp);
                 }
-		}
             }
         }
-	}
     }
 
     function get_content() {
