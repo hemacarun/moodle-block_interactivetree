@@ -2,7 +2,7 @@ Interactive tree Block
 ----------------
 
 This block used to create  inline tree structure block.
-This block developed using jquery jstree.
+Block developed using jquery jstree.
 
 Provides context menu to do following actions:
 Create node
