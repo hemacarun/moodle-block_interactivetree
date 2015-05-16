@@ -113,6 +113,7 @@ class block_interactivetree extends block_base {
                 $temp = new stdClass();
                 $exists_data = $DB->get_record('tree_data', array('id' => $value));
 
+                if(isset($formcontent->$value)){
                 if ($exists_data->url != $formcontent->$value && !empty($formcontent->$value)) {
 
                     $temp->id = $value;
@@ -120,6 +121,7 @@ class block_interactivetree extends block_base {
                     $temp->url = $formcontent->$value;
                     $updatedrecordid = $DB->update_record('tree_data', $temp);
                 }
+              } 
             }
         }
     }
