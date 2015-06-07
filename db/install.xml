@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="tree_data" COMMENT="to store the node name and url">
+    <TABLE NAME="block_interactivetree_data" COMMENT="to store the node name and url">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="nm" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
@@ -15,7 +15,7 @@
       </KEYS>
     </TABLE>
     
-    <TABLE NAME="tree_struct" COMMENT="to store the positions info">
+    <TABLE NAME="block_interactivetree_struct" COMMENT="to store the positions info">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="lft" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>

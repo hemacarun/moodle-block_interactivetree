@@ -15,7 +15,7 @@ global $CFG, $DB, $OUTPUT, $PAGE;
 
 
 if (isset($opertaion)) {
-    $fs = new tree(array('structure_table' => 'tree_struct', 'data_table' => 'tree_data', 'data' => array('nm')));
+    $fs = new interactivetree_manage(array('structure_table' => 'block_interactivetree_struct', 'data_table' => 'block_interactivetree_data', 'data' => array('nm')));
 
     try {
         $rslt = null;
@@ -30,13 +30,13 @@ if (isset($opertaion)) {
                 //print_object($temp);
                 $rslt = array();
                 foreach ($temp as $v) {
-                    $treeinfo = $DB->get_record('tree_data', array('id' => $v->id));
-                    if($treeinfo->url!=null)
-                     $url=$treeinfo->url;
+                    $treeinfo = $DB->get_record('block_interactivetree_data', array('id' => $v->id));
+                    if ($treeinfo->url != null)
+                        $url = $treeinfo->url;
                     else
-                     $url='#';
-                     
-                  
+                        $url = '#';
+
+
                     $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1), 'a_attr' => array('href' => $url));
                 }
                 // print_object($rslt);

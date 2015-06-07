@@ -1,7 +1,7 @@
 <?php
 
 // TO DO: better exceptions, use params
-class tree {
+class  interactivetree_manage {
 
     protected $DB;
     protected $options = null;
@@ -60,7 +60,7 @@ class tree {
 			WHERE 
 				s." . $this->options['structure']['id'] . " = d." . $this->options['data2structure'] . " AND 
 				s." . $this->options['structure']['id'] . " = " . (int) $id;
-                   
+
         if (!$node) {
             throw new Exception('Node does not exist');
         }
@@ -117,13 +117,13 @@ class tree {
 
     public function get_path($id) {
         global $DB, $CFG, $USER;
-        $node = $this->get_node($id);        
+        $node = $this->get_node($id);
         $osleft = $this->osleft;
         $osright = $this->osright;
         $sql = false;
         if ($node) {
-            
-          $sql = "
+
+            $sql = "
 				SELECT 
 					s." . implode(", s.", $this->options['structure']) . ", 
 					d." . implode(", d.", $this->options['data']) . " 
@@ -138,7 +138,7 @@ class tree {
 					s." . $this->options['structure']['left'] . "
 			";
         }
-        
+
         return $sql ? $DB->get_records_sql($sql) : false;
     }
 
@@ -222,7 +222,7 @@ class tree {
 			";
         $par[] = false;
 
-  
+
         $tmp = array();
         $insert_temp = new Stdclass();
         foreach ($this->options['structure'] as $k => $v) {
@@ -255,28 +255,28 @@ class tree {
                     $tmp[] = null;
             }
         }
-        $par[] = $tmp;       
+        $par[] = $tmp;
         $treestruct_table = $this->options['structure_table'];
         $node = $DB->insert_record($treestruct_table, $insert_temp);
 
         foreach ($sql as $k => $v) {
-           
+
             try {
                 $DB->execute($v);
-            } catch (Exception $e) {             
+            } catch (Exception $e) {
 
                 throw new Exception('Could not create');
             }
         }
 
         if ($data && count($data)) {
-            
+
             if (!$this->rn($node, $data)) {
                 $this->rm($node);
                 throw new Exception('Could not rename after create');
             }
         }
-      
+
         return $node;
     }
 
@@ -361,7 +361,6 @@ class tree {
         } else {
             $parent_pos = $parent_c->$position;
             $ref_rgt = $parent_pos->$options_structure_left + 1;
-           
         }
         $sql[] = "
 			UPDATE " . $DB->get_prefix() . $this->options['structure_table'] . " 
@@ -423,7 +422,7 @@ class tree {
             //echo preg_replace('@[\s\t]+@',' ',$v) ."\n";
             try {
                 $DB->execute($v);
-            } catch (Exception $e) {               
+            } catch (Exception $e) {
                 throw new Exception('Error moving');
             }
         }
@@ -441,7 +440,7 @@ class tree {
 
 
         $parent = $this->get_node($parent, array('with_children' => true, 'with_path' => true));
-        $id = $this->get_node($id, array('with_children' => true, 'deep_children' => true, 'with_path' => true));       
+        $id = $this->get_node($id, array('with_children' => true, 'deep_children' => true, 'with_path' => true));
 
         $osleft = $this->osleft;
         $osright = $this->osright;
@@ -497,7 +496,7 @@ class tree {
             $ref_lft = $parent->$osright;
         } else {
             $par_pos = $parent_c->$position;
-            $ref_lft = $par_pos->$osleft;           
+            $ref_lft = $par_pos->$osleft;
         }
         $sql[] = "
 			UPDATE " . $DB->get_prefix() . $this->options['structure_table'] . "
@@ -514,7 +513,6 @@ class tree {
         } else {
             $par_pos = $parent_c->$position;
             $ref_rgt = $par_pos->$osleft + 1;
-           
         }
         $sql[] = "
 			UPDATE " . $DB->get_prefix() . $this->options['structure_table'] . " 
@@ -537,7 +535,7 @@ class tree {
         unset($fields['id']);
         $fields[$osleft] = $osleft . " + " . $diff;
         $fields[$osright] = $osright . " + " . $diff;
-        $fields[$oslvl] = $oslvl . " + " . $ldiff;     
+        $fields[$oslvl] = $oslvl . " + " . $ldiff;
 
         $record_toinsert = $DB->get_record_sql("SELECT " . implode(',', array_values($fields)) . " FROM " . $DB->get_prefix() . $this->options['structure_table'] . " WHERE " . $this->options['structure']["id"] . " IN (" . implode(",", $tmp) . ") 
 			ORDER BY " . $oslvl . " ASC");
@@ -550,14 +548,14 @@ class tree {
         $insert_temp->$osparentid = $record_toinsert->$fields[$osparentid];
         $insert_temp->$ospos = $record_toinsert->$fields[$ospos];
 
-        $iid = $DB->insert_record($this->options['structure_table'], $insert_temp);  
+        $iid = $DB->insert_record($this->options['structure_table'], $insert_temp);
 
 
         foreach ($sql as $k => $v) {
             try {
                 $DB->execute($v);
             } catch (Exception $e) {
-               
+
                 throw new Exception('Error copying');
             }
         }
@@ -572,7 +570,7 @@ class tree {
 			");
         } catch (Exception $e) {
 
-            $this->rm($iid);           
+            $this->rm($iid);
             throw new Exception('Could not update adjacency after copy');
         }
 
@@ -594,7 +592,7 @@ class tree {
 						ON DUPLICATE KEY UPDATE " . $update_fields . " 
 				");
             } catch (Exception $e) {
-                $this->rm($iid);             
+                $this->rm($iid);
                 throw new Exception('Could not update data after copy');
             }
         }
@@ -645,7 +643,7 @@ class tree {
             try {
                 $DB->execute($v);
             } catch (Exception $e) {
-                $this->rm($iid);                
+                $this->rm($iid);
                 throw new Exception('Error copying');
             }
         }
@@ -668,13 +666,12 @@ class tree {
         $pid = $data->$osparentid;
         $pos = $data->$ospos;
         $dif = $rgt - $lft + 1;
-	
-	if($id){
-	    $children_exists=$DB->get_records('tree_struct',array('pid'=>$id));
-	    if($children_exists)
-	   throw new Exception('could not remove');
-	    
-	}
+
+        if ($id) {
+            $children_exists = $DB->get_records('block_interactivetree_struct', array('pid' => $id));
+            if ($children_exists)
+                throw new Exception('could not remove');
+        }
 
         $sql = array();
         // deleting node and its children from structure
@@ -711,7 +708,7 @@ class tree {
             }
             $sql[] = "DELETE FROM " . $DB->get_prefix() . $this->options['data_table'] . " WHERE " . $this->options['data2structure'] . " IN (" . implode(',', $tmp) . ")";
         }
-   
+
         foreach ($sql as $v) {
             try {
                 $DB->execute($v);
@@ -725,7 +722,7 @@ class tree {
 
     public function rn($id, $data) {
         global $DB, $CFG, $PAGE;
-      
+
         $checking_existingnode = $DB->get_record_sql('SELECT 1 AS res FROM ' . $DB->get_prefix() . $this->options['structure_table'] . ' WHERE ' . $this->options['structure']['id'] . ' = ' . (int) $id);
         if (!$checking_existingnode->res) {
             throw new Exception('Could not rename non-existing node');
@@ -756,7 +753,7 @@ class tree {
     }
 
     public function analyze($get_errors = false) {
-        
+
         global $DB, $CFG, $PAGE;
         $report = array();
         //if((int)
@@ -847,7 +844,7 @@ class tree {
 					s1." . $this->options['structure']['parent_id'] . " = s2." . $this->options['structure']['parent_id'] . " AND 
 					s1." . $this->options['structure']['position'] . " = s2." . $this->options['structure']['position'] . " 
 				LIMIT 1");
-      
+
         if (isset($checking_positions1->res) || isset($positon2->res)) {
             $report[] = "Positions not correct.";
         }
@@ -905,8 +902,6 @@ class tree {
         }
         return $get_errors ? $report : count($report) == 0;
     }
-
-
 
     public function res($data = array()) {
         global $CFG, $DB;

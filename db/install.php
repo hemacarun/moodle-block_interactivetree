@@ -28,7 +28,7 @@ function xmldb_block_interactivetree_install() {
     $temp_treedata->id = 1;
     $temp_treedata->nm = 'root';
     $temp_treedata->url = null;
-    $DB->insert_record('tree_data', $temp_treedata);
+    $DB->insert_record('block_interactivetree_data', $temp_treedata);
 
     $temp_treestruct = new stdClass();
     $temp_treestruct->id = 1;
@@ -37,7 +37,7 @@ function xmldb_block_interactivetree_install() {
     $temp_treestruct->lvl = 0;
     $temp_treestruct->pid = 0;
     $temp_treestruct->pos = 0;
-    $DB->insert_record('tree_struct', $temp_treestruct);
+    $DB->insert_record('block_interactivetree_struct', $temp_treestruct);
 
 
 }

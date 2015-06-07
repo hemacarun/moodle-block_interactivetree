@@ -93,14 +93,15 @@ class block_interactivetree extends block_base {
     }
 
     function get_required_javascript() {
-        global $DB, $CFG, $PAGE;
+        global $DB, $CFG, $PAGE, $COURSE;
         $PAGE->requires->jquery();
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js');
-
-        if (is_siteadmin())
+        $coursecontext = context_course::instance($COURSE->id);
+        if (is_siteadmin() || has_capability('block/interactivetree:manage', $coursecontext)) {
             $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
-        else
+        } else {
             $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
+        }
     }
 
     function interactivetree_addurl() {
@@ -111,17 +112,17 @@ class block_interactivetree extends block_base {
             foreach ($formcontent->node as $key => $value) {
 
                 $temp = new stdClass();
-                $exists_data = $DB->get_record('tree_data', array('id' => $value));
+                $exists_data = $DB->get_record('block_interactivetree_data', array('id' => $value));
 
-                if(isset($formcontent->$value)){
-                if ($exists_data->url != $formcontent->$value && !empty($formcontent->$value)) {
+                if (isset($formcontent->$value)) {
+                    if ($exists_data->url != $formcontent->$value && !empty($formcontent->$value)) {
 
-                    $temp->id = $value;
-                    $temp->nm = $exists_data->nm;
-                    $temp->url = $formcontent->$value;
-                    $updatedrecordid = $DB->update_record('tree_data', $temp);
+                        $temp->id = $value;
+                        $temp->nm = $exists_data->nm;
+                        $temp->url = $formcontent->$value;
+                        $updatedrecordid = $DB->update_record('block_interactivetree_data', $temp);
+                    }
                 }
-              } 
             }
         }
     }
@@ -130,7 +131,7 @@ class block_interactivetree extends block_base {
 
         global $CFG, $USER, $DB, $OUTPUT, $PAGE;
         $PAGE->requires->css('/blocks/interactivetree/css/style.css');
-        $PAGE->requires->css('/blocks/interactivetree/dis/themes/default/style.min.css');
+        $PAGE->requires->css('/blocks/interactivetree/dist/themes/default/style.min.css');
         $systemcontext = context_system::instance();
 
         if ($this->content !== NULL) {
@@ -157,10 +158,10 @@ class block_interactivetree extends block_base {
 
         if (isloggedin()) {
             $this->content = new stdClass;
-            $this->content->text = '<div id="container" role="main">
-			<div id="tree"></div>
-			<div id="data">
-				<div class="content code" style="display:none;"><textarea id="code" readonly="readonly"></textarea></div>
+            $this->content->text = '<div id="block_interactivetree_container" role="main">
+			<div id="block_interactivetree_tree"></div>
+			<div id="block_interactivetree_data">
+				<div class="block_interactivetree_content block_interactivetree_code" style="display:none;"><textarea id="block_interactivetree_code" readonly="readonly"></textarea></div>
 
 
 			</div>
