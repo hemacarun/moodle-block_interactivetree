@@ -96,12 +96,18 @@ class block_interactivetree extends block_base {
         global $DB, $CFG, $PAGE, $COURSE;
         $PAGE->requires->jquery();
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js');
-        $coursecontext = context_course::instance($COURSE->id);
-        if (is_siteadmin() || has_capability('block/interactivetree:manage', $coursecontext)) {
-            $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
+        $context = $PAGE->context;
+	$PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js');
+        
+        if (is_siteadmin() || has_capability('block/interactivetree:manage', $context)) {
+	   $capabality=1;
+          //  $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
         } else {
-            $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
+           $capabality=0;
+           // $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
         }
+	 $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);
+	
     }
 
     function interactivetree_addurl() {
@@ -143,29 +149,23 @@ class block_interactivetree extends block_base {
         $this->content->icons = array();
         $this->content->footer = '';
 
-        //some variables
-        $content = array();
-        $items = array();
-        $active_module_course = null;
-        $is_active = false;
-        $mybranch = array();
-        $icon = '';
-        $topnodelevel = 0;
-        $sn_home = null;
 
         $this->page->navigation->initialise();
         $this->interactivetree_addurl();
-
+	
+				
         if (isloggedin()) {
             $this->content = new stdClass;
-            $this->content->text = '<div id="block_interactivetree_container" role="main">
+            $this->content->text = '<div id="block_interactivetree_main">
+	                 <div id="block_interactivetree_container" role="main">
 			<div id="block_interactivetree_tree"></div>
 			<div id="block_interactivetree_data">
 				<div class="block_interactivetree_content block_interactivetree_code" style="display:none;"><textarea id="block_interactivetree_code" readonly="readonly"></textarea></div>
 
 
 			</div>
-		</div>';
+		        </div>
+		        </div>';
 
 
             return $this->content;

@@ -1,5 +1,8 @@
-$(function () {
-   
+
+
+function interactive_jstree(Y, capability){
+ 
+ 
     $(window).resize(function () {
         var h = Math.max($(window).height() - 0, 420);
         $('#block_interactivetree_container, #block_interactivetree_data, #block_interactivetree_tree, #block_interactivetree_data .block_interactivetree_content').height(h).filter('.default').css('lineHeight', h + 'px');
@@ -30,8 +33,39 @@ $(function () {
      
     }
   },
-    'plugins': ['state', 'dnd', 'contextmenu', 'wholerow','types']
+
+       'plugins': ['state', 'dnd', 'contextmenu', 'wholerow','types'],
+       	contextmenu: {
+          "items": function () {
+
+              if (capability == 0) {
+               
+                return {
+                    "create":false,
+                    "rename":false,
+                    "delete":false
+                }
+              }
+              else{
+                
+                 var tmp = $.jstree.defaults.contextmenu.items();
+
+                 return tmp;
+              }
+                      
+            }
+            
+        }    
+            
+            
+        
+    
+    
             })
+            
+        
+               
+            
 
        .bind("select_node.jstree", function (e, data) {
         var href = data.node.a_attr.href;
@@ -53,7 +87,7 @@ $(function () {
             .on('create_node.jstree', function (e, data) {
                 $.get( M.cfg.wwwroot +'/blocks/interactivetree/tree_node.php?operation=create_node', {'id': data.node.parent, 'position': data.position, 'text': data.node.text})
                         .done(function (d) {
-                            console.log(d);
+                            
                             data.instance.set_id(data.node, d.id);
                         })
                         .fail(function () {
@@ -81,7 +115,7 @@ $(function () {
             .on('changed.jstree', function (e, data) {
                 if (data && data.selected && data.selected.length) {
                     $.get( M.cfg.wwwroot +'/blocks/interactivetree/tree_node.php?operation=get_content&id=' + data.selected.join(':'), function (d) {
-                         console.log(d.content);
+                        
                         $('#data .default').html(d.content).show();
                     });
                 }
@@ -91,5 +125,4 @@ $(function () {
                 }
             });
 
-
-});
+}// end of function

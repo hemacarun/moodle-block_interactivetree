@@ -4100,7 +4100,7 @@
 				w2 = ai.width() * ai.length,
 				*/
 				t  = default_text,
-				h1 = $("<"+"div />", { css : { "position" : "absolute", "top" : "-200px", "left" : (rtl ? "0px" : "-1000px"), "visibility" : "hidden" } }).appendTo("body"),
+				h1 = $("<"+"div />", { css : { "position" : "absolute", "top" : "-200px", "left" : (rtl ? "0px" : "-1000px"), "visibility" : "hidden" } }).appendTo("div #block_interactivetree_main"),
 				h2 = $("<"+"input />", {
 						"value" : t,
 						"class" : "jstree-rename-input",
@@ -5575,7 +5575,7 @@
 					vakata_context.element.html(vakata_context.html);
 				}
 				if(vakata_context.items.length) {
-					vakata_context.element.appendTo("body");
+					vakata_context.element.appendTo("div #block_interactivetree_main");
 					e = vakata_context.element;
 					x = vakata_context.position_x;
 					y = vakata_context.position_y;
@@ -5631,7 +5631,7 @@
 			}
 		};
 		$(function () {
-			right_to_left = $("body").css("direction") === "rtl";
+			right_to_left = $("div #block_interactivetree_main").css("direction") === "rtl";
 			var to = false;
 
 			vakata_context.element = $("<ul class='vakata-context'></ul>");
@@ -5849,7 +5849,7 @@
 			.on('dnd_start.vakata.jstree', function (e, data) {
 				lastmv = false;
 				if(!data || !data.data || !data.data.jstree) { return; }
-				marker.appendTo('body'); //.show();
+				marker.appendTo("div #block_interactivetree_main"); //.show();
 			})
 			.on('dnd_move.vakata.jstree', function (e, data) {
 				if(opento) { clearTimeout(opento); }
@@ -6143,7 +6143,7 @@
 						Math.abs(e.pageY - vakata_dnd.init_y) > (vakata_dnd.is_touch ? $.vakata.dnd.settings.threshold_touch : $.vakata.dnd.settings.threshold)
 					) {
 						if(vakata_dnd.helper) {
-							vakata_dnd.helper.appendTo("body");
+							vakata_dnd.helper.appendTo("div #block_interactivetree_main ");
 							vakata_dnd.helper_w = vakata_dnd.helper.outerWidth();
 						}
 						vakata_dnd.is_drag = true;
@@ -6171,7 +6171,7 @@
 				vakata_dnd.scroll_t = 0;
 				vakata_dnd.scroll_l = 0;
 				vakata_dnd.scroll_e = false;
-				$($(e.target).parentsUntil("body").addBack().get().reverse())
+				$($(e.target).parentsUntil("div #block_interactivetree_main").addBack().get().reverse())
 					.filter(function () {
 						return	(/^auto|scroll$/).test($(this).css("overflow")) &&
 								(this.scrollHeight > this.offsetHeight || this.scrollWidth > this.offsetWidth);

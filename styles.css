@@ -40,7 +40,7 @@ p.tree_item.branch.hasicon.active_tree_node{
 }
 
 
-html, body { background:#ebebeb; font-size:10px; font-family:Verdana; margin:0; padding:0; }
+html, div #block_interactivetree_main  {  font-size:13px; font-family:Verdana; margin:0; padding:0; }
 #block_interactivetree_container { min-width:100%; margin:0px auto 0 auto;  border-radius:0px; padding:0px; overflow:hidden; }
 #block_interactivetree_tree { float:left; min-width:100%;  margin-left:-6px;  padding:0px 0; }
 #block_interactivetree_data { margin-left:320px; }

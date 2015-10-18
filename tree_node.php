@@ -15,7 +15,7 @@ global $CFG, $DB, $OUTPUT, $PAGE;
 
 
 if (isset($opertaion)) {
-    $fs = new interactivetree_manage(array('structure_table' => 'block_interactivetree_struct', 'data_table' => 'block_interactivetree_data', 'data' => array('nm')));
+    $fs = new block_interactivetree_manage(array('structure_table' => 'block_interactivetree_struct', 'data_table' => 'block_interactivetree_data', 'data' => array('nm')));
 
     try {
         $rslt = null;
@@ -27,7 +27,8 @@ if (isset($opertaion)) {
             case 'get_node':
                 $node = isset($id) && $id !== '#' ? (int) $id : 0;
                 $temp = $fs->get_children($node);
-                //print_object($temp);
+          
+
                 $rslt = array();
                 foreach ($temp as $v) {
                     $treeinfo = $DB->get_record('block_interactivetree_data', array('id' => $v->id));
@@ -37,7 +38,8 @@ if (isset($opertaion)) {
                         $url = '#';
 
 
-                    $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1), 'a_attr' => array('href' => $url));
+                   // $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft >= 1), 'a_attr' => array('href' => $url));
+                     $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1),'a_attr' => array('href' => $url));
                 }
                 // print_object($rslt);
                 break;
@@ -49,6 +51,7 @@ if (isset($opertaion)) {
                 } else {
                     $temp = $fs->get_node((int) $node[0], array('with_path' => true));
 
+                
                     $rslt = array('content' => 'Selected: /' . implode('/', array_map(function ($v) {
                                             return $v->nm;
                                         }, $temp->path)) . '/' . $temp->nm);
