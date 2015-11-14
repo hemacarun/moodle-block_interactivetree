@@ -12,7 +12,7 @@ Installation Process:
 
  Admin:
 
-1.Only admin has the capability to create inline tree structure  block.
+1.Admin has the capability to create inline tree structure  block.
 2.When block is installed, You can see only one node name as root node, Right click on that node ,You can  find the context menu popup with including create, delete and rename option.
 3.Using those menu option,You can easily create tree structure block(root  and leaf nodes).
 4.Using configuration link, we can add link to those nodes
