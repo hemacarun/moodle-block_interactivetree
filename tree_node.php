@@ -81,7 +81,7 @@ if (isset($opertaion)) {
                 $rslt = $fs->cp($node, $parent, isset($position) ? (int) $position : 0);
                 break;
             default:
-                throw new Exception('Unsupported operation: ' . $_GET['operation']);
+                throw new Exception('Unsupported operation: ' . $operation);
                 break;
         }
         header('Content-Type: application/json; charset=utf-8');
