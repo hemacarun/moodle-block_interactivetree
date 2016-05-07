@@ -25,7 +25,7 @@ before_script:
  - echo "{\"config\":{\"github-oauth\":{\"github.com\":\"$GITHUBTOKEN\"}}}" > ~/.composer/config.json
  - cd blocks/interactivetree
  - curl -sS https://getcomposer.org/installer | php
- - php composer.phar install
+ 
  - cd ../..
  - php admin/tool/behat/cli/init.php
 script:
