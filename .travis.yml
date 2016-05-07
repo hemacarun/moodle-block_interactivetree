@@ -1,3 +1,4 @@
+    
 language: php
 
 sudo: false
@@ -7,29 +8,42 @@ cache:
     - $HOME/.composer/cache
 
 php:
- - 5.4
  - 5.5
 
 env:
-  - MOODLE_BRANCH=MOODLE_29_STABLE 
-  - MOODLE_BRANCH=MOODLE_28_STABLE 
-  - MOODLE_BRANCH=MOODLE_27_STABLE 
+  - MOODLE_BRANCH=MOODLE_29_STABLE DB=pgsql COVERAGE=false
+  - MOODLE_BRANCH=MOODLE_28_STABLE DB=pgsql COVERAGE=false
+  - MOODLE_BRANCH=MOODLE_27_STABLE DB=mysqli COVERAGE=false
 
 matrix:
-  - DB=pgsql
-  - DB=mysqli
-  
-before_install:
-  - phpenv config-rm xdebug.ini
-  - cd ../..
-  - composer selfupdate
-  - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^1
-  - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  include:
+    - php: 5.5
+      env: MOODLE_BRANCH=MOODLE_27_STABLE DB=mysqli COVERAGE=true
+   
 
 install:
+  # Several tools complain about xdebug slowdown.
+  - phpenv config-rm xdebug.ini
+
+  - composer selfupdate
+  - composer install --no-interaction --prefer-dist
+
+  # Mimic how a Moodle plugin would be run.
+  - cp -R tests/Fixture/moodle-local_travis ../moodle-local_travis
+  - export PATH="$(cd bin; pwd):$(cd vendor/bin; pwd):$PATH"
+  - export TRAVIS_BUILD_DIR=$(cd ../moodle-local_travis; pwd)
+
+  # Finally, the standard install step.
   - moodle-plugin-ci install
 
 script:
+  - composer validate
+  - composer lint
+  - php-cs-fixer --dry-run -v fix
+  - if [ "$COVERAGE" = true ]; then phpdbg -qrr $(which phpunit) --coverage-clover coverage.clover; fi
+  - if [ "$COVERAGE" = false ]; then phpunit; fi
+
+  # This is basically "integration" testing.
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
@@ -38,5 +52,8 @@ script:
   - moodle-plugin-ci shifter
   - moodle-plugin-ci jshint
   - moodle-plugin-ci validate
-  - moodle-plugin-ci phpunit
+  - moodle-plugin-ci phpunit --coverage-text
   - moodle-plugin-ci behat
+
+after_script:
+  - if [ "$COVERAGE" = true ]; then ocular code-coverage:upload --format=php-clover coverage.clover; fi
