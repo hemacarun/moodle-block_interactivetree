@@ -95,9 +95,9 @@ class block_interactivetree extends block_base {
     function get_required_javascript() {
         global $DB, $CFG, $PAGE, $COURSE;
         $PAGE->requires->jquery();
-        $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js');
+        $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js', true);
         $context = $PAGE->context;
-	$PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js');
+	    $PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js', true);
         
         if (is_siteadmin() || has_capability('block/interactivetree:manage', $context)) {
 	   $capabality=1;
