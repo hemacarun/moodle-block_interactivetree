@@ -11,13 +11,15 @@ $text = optional_param('text', ' ', PARAM_TEXT);
 //require_once(dirname(__FILE__) . '/blocks/interactivetree/class.db.php');
 global $CFG, $DB, $OUTPUT, $PAGE;
 
-
-
+//------ getting block context level
+$instance = $DB->get_record('block_instances', array('blockname' => 'interactivetree'), '*', MUST_EXIST); 
+$blockcontext =  context_block::instance($instance->id);
 
 if (isset($opertaion)) {
     $fs = new block_interactivetree_manage(array('structure_table' => 'block_interactivetree_struct', 'data_table' => 'block_interactivetree_data', 'data' => array('nm')));
 
     try {
+       //  $context = $PAGE->context;
         $rslt = null;
         switch ($opertaion) {
             case 'analyze':
@@ -58,27 +60,37 @@ if (isset($opertaion)) {
                 }
                 break;
             case 'create_node':
-                $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                $temp = $fs->mk($node, isset($position) ? (int) $position : 0, array('nm' => isset($text) ? $text : 'New node'));
-                $rslt = array('id' => $temp);
+               if( has_capability('block/interactivetree:manage', $blockcontext)){
+                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
+                    $temp = $fs->mk($node, isset($position) ? (int) $position : 0, array('nm' => isset($text) ? $text : 'New node'));
+                    $rslt = array('id' => $temp);
+                }
                 break;
             case 'rename_node':
-                $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                $rslt = $fs->rn($node, array('nm' => isset($text) ? $text : 'Renamed node'));
+                if( has_capability('block/interactivetree:manage', $blockcontext)){
+                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
+                    $rslt = $fs->rn($node, array('nm' => isset($text) ? $text : 'Renamed node'));
+                }
                 break;
             case 'delete_node':
-                $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                $rslt = $fs->rm($node);
+                if( has_capability('block/interactivetree:manage', $blockcontext)){ 
+                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
+                    $rslt = $fs->rm($node);
+                }
                 break;
             case 'move_node':
-                $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                $parn = isset($parent) && $parent !== '#' ? (int) $parent : 0;
-                $rslt = $fs->mv($node, $parn, isset($position) ? (int) $position : 0);
+                if( has_capability('block/interactivetree:manage', $blockcontext)){  
+                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
+                    $parn = isset($parent) && $parent !== '#' ? (int) $parent : 0;
+                    $rslt = $fs->mv($node, $parn, isset($position) ? (int) $position : 0);
+                }
                 break;
             case 'copy_node':
-                $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                $parn = isset($parent) && $parent !== '#' ? (int) $parent : 0;
-                $rslt = $fs->cp($node, $parent, isset($position) ? (int) $position : 0);
+                if( has_capability('block/interactivetree:manage', $blockcontext)){ 
+                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
+                    $parn = isset($parent) && $parent !== '#' ? (int) $parent : 0;
+                    $rslt = $fs->cp($node, $parent, isset($position) ? (int) $position : 0);
+                }
                 break;
             default:
                 throw new Exception('Unsupported operation: ' . $operation);
