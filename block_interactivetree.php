@@ -38,10 +38,8 @@ class block_interactivetree extends block_base {
     /** @var bool|null */
     protected $docked = null;
 
-    function init() {
-        global $CFG, $PAGE;
-        $this->blockname = get_class($this);
-        $systemcontext = context_system::instance();
+    function init() {    
+        $this->blockname = get_class($this);        
         $this->title = get_string('pluginname', 'block_interactivetree');
     }
 
@@ -62,8 +60,8 @@ class block_interactivetree extends block_base {
     }
 
     function specialization() {
-        $systemcontext = context_system::instance();
-        $title_string = format_string(get_string('pluginname', 'block_interactivetree'));
+      //  $systemcontext = context_system::instance();
+      //  $title_string = format_string(get_string('pluginname', 'block_interactivetree'));
 
         if ($this->title == '') {
             $this->title = format_string(get_string('pluginname', 'block_interactivetree'));
@@ -93,7 +91,7 @@ class block_interactivetree extends block_base {
     }
 
     function get_required_javascript() {
-        global $DB, $CFG, $PAGE, $COURSE;
+        global $PAGE;
         $PAGE->requires->jquery();
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js', true);
         $context = $PAGE->context;
@@ -111,11 +109,11 @@ class block_interactivetree extends block_base {
     }
 
     function interactivetree_addurl() {
-        global $CFG, $USER, $DB, $OUTPUT, $PAGE;
+        global  $DB;
         $formcontent = $this->config;
 
         if (isset($formcontent->node)) {
-            foreach ($formcontent->node as $key => $value) {
+            foreach ($formcontent->node as  $value) {
 
                 $temp = new stdClass();
                 $exists_data = $DB->get_record('block_interactivetree_data', array('id' => $value));
@@ -126,7 +124,7 @@ class block_interactivetree extends block_base {
                         $temp->id = $value;
                         $temp->nm = $exists_data->nm;
                         $temp->url = $formcontent->$value;
-                        $updatedrecordid = $DB->update_record('block_interactivetree_data', $temp);
+                        $DB->update_record('block_interactivetree_data', $temp);
                     }
                 }
             }
@@ -135,10 +133,10 @@ class block_interactivetree extends block_base {
 
     function get_content() {
 
-        global $CFG, $USER, $DB, $OUTPUT, $PAGE;
+        global $PAGE;
         $PAGE->requires->css('/blocks/interactivetree/css/style.css');
         $PAGE->requires->css('/blocks/interactivetree/dist/themes/default/style.min.css');
-        $systemcontext = context_system::instance();
+       // $systemcontext = context_system::instance();
 
         if ($this->content !== NULL) {
             return $this->content;
