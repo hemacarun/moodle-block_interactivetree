@@ -21,7 +21,7 @@ class block_interactivetree_manage {
         ),
         'data' => array()   // array of additional fields from the data table
     );
-    protected $osparentid;
+    protected $ospid;
     protected $osid;
     protected $ospos;
     protected $osleft;
@@ -33,12 +33,12 @@ class block_interactivetree_manage {
 
     public function __construct(array $options = array()) {
         $this->options = array_merge($this->default, $options);
-        $this->osparentid = $this->options['structure']['parent_id'];
-        $this->osid = $this->options['structure']['id'];
+      //  pid = $this->options['structure']['parent_id'];
+      //  id = $this->options['structure']['id'];
         $this->ospos =  $this->options['structure']['position'];
         $this->osleft = $this->options['structure']['left'];
         $this->osright = $this->options['structure']['right'];
-        $this->oslevel = $this->options['structure']['level'];
+       // lvl = $this->options['structure']['level'];
         $this->structuretable = $this->options['structure_table'];
         $this->datatable = $this->options['data_table'];
         $this->data2structure = $this->options['data2structure'];
@@ -47,62 +47,45 @@ class block_interactivetree_manage {
     
     
     function get_node($id, $options = array()) {
-        global $CFG, $USER, $DB, $OUTPUT, $PAGE;
-        $selectedstructure = implode(", s.", $this->options['structure']);
-        $selecteddata = implode(", d.", $this->options['data']);
-
-        $sql = " SELECT s.$selectedstructure, d.$selecteddata 
-			FROM 
-                                {block_interactivetree_struct} as  s, 
-                                {block_interactivetree_data} as d 
-			WHERE 
-				s.{$this->osid} = d.{$this->data2structure}  AND 
-				s.{$this->osid} = ? ";
-
+        global $CFG, $USER, $DB, $OUTPUT, $PAGE;		
+        $sql = " SELECT s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm 
+			FROM {block_interactivetree_struct} as  s, {block_interactivetree_data} as d 
+			WHERE s.id = d.id AND s.id = ? ";
         $node = $DB->get_record_sql($sql, array($id));	
-
+        
         if (!$node) {
             throw new Exception('Node does not exist');
         }
         if (isset($options['with_children'])) {
-
             $node->children = $this->get_children($id, isset($options['deep_children']));
         }
         if (isset($options['with_path'])) {
             $node->path = $this->get_path($id);
         }
-	
+		
+		
+		
         return $node;
     }
 
     public function get_children($id, $recursive = false) {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE;
         $sql = false;
-        $selectedstructure = implode(", s.", $this->options['structure']);
-        $selecteddata = implode(", d.", $this->options['data']);
 
         if ($recursive) {
-            $node = $this->get_node($id);
-            $osleft = $this->osleft;
-            $osright = $this->osright;
+            $node = $this->get_node($id);   
 
-           $sql = "SELECT  s.$selectedstructure, d.$selecteddata			
+            $sql = "SELECT  s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm			
                        FROM  {block_interactivetree_struct} s,{block_interactivetree_data} d 
-				WHERE s.{$this->osid} = d.{$this->data2structure} AND 
-					s.{$this->osleft} > :osleft AND 
-					s.{$this->osright} < :osright
-				ORDER BY 
-					s.{$this->osleft}";
-            $response = $DB->get_records_sql($sql, array('osleft' => $node->$osleft, 'osright' => $node->$osright));
+				WHERE s.id = d.id AND s.lft > :osleft AND s.rgt < :osright
+				ORDER BY s.lft";
+            $response = $DB->get_records_sql($sql, array('osleft' => $node->lft, 'osright' => $node->rgt));
         } else {
-            $sql = " SELECT  s.$selectedstructure, d.$selecteddata
+            $sql = " SELECT  s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm
 		     FROM  {block_interactivetree_struct} s,{block_interactivetree_data} d 
-		     WHERE
-		     s.{$this->osid} = d.{$this->data2structure} AND 
-		     s.{$this->osparentid} = :parentid ORDER BY  s.{$this->ospos} ";
+		     WHERE s.id = d.id AND s.pid = :parentid ORDER BY  s.pos ";
             $response = $DB->get_records_sql($sql, array('parentid' => $id));
-        }
-       
+        } 
         
         return $response;
     }
@@ -110,22 +93,14 @@ class block_interactivetree_manage {
     public function get_path($id) {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE;
         $node = $this->get_node($id);
-        $selectedstructure = implode(", s.", $this->options['structure']);
-        $selecteddata = implode(", d.", $this->options['data']);
-        $osleft = $this->osleft;
-        $osright = $this->osright;
         $sql = false;
         if ($node) {
-
-            $sql = "SELECT  s.$selectedstructure, d.$selecteddata
+            $sql = "SELECT  s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm
 		    FROM  {block_interactivetree_struct} s,{block_interactivetree_data} d 
-		    WHERE 
-		    s.{$this->osid} = d.{$this->data2structure} AND 
-		    s.{$this->osleft} < :osleft  AND 
-		    s.{$this->osright} > :osright  ORDER BY  s.{$this->osleft} ";
+		    WHERE s.id = d.id AND s.lft < :osleft  AND 
+		    s.rgt > :osright  ORDER BY  s.lft ";
         }
-
-        return $sql ? $DB->get_records_sql($sql, array('osleft' => $node->$osleft, 'osright' => $node->$osright)) : false;
+        return $sql ? $DB->get_records_sql($sql, array('osleft' => $node->lft, 'osright' => $node->rgt)) : false;
     }
     
     
@@ -142,121 +117,84 @@ class block_interactivetree_manage {
         }
         if ($parent->children && $position >= count($parent->children)) {
             $position = count($parent->children);
-        }
+        }	
 
-        $sql = array();
-        $par = array();
+        $sql = array(); 
 
         // PREPARE NEW PARENT 
         // update positions of all next elements
-        $option_structureid = $this->osid;
-
         $sql[] = "UPDATE {block_interactivetree_struct}
-		  SET {$this->ospos} = {$this->ospos} + 1
-		  WHERE {$this->osparentid}  = :parentstructureid  AND 
-		{$this->ospos}  >=:position";
+		  SET pos = pos + 1
+		  WHERE pid  = :parentstructureid  AND 
+		  pos  >=:position";
 		  
-        $params[]=array('parentstructureid'=> $parent->$option_structureid ,'position'=> $position );
-        $options_structure_right = $this->osright;
-        $options_structure_left = $this->osleft;
+        $params[]=array('parentstructureid'=> $parent->id ,'position'=> $position );
+        
         // update left indexes
         $ref_lft = false;
         if (!$parent->children) {
-            $ref_lft = $parent->$options_structure_right;
+            $ref_lft = $parent->rgt;
         } else if (!isset($parent->children[$position])) {
-            $ref_lft = $parent->$options_structure_right;
+            $ref_lft = $parent->rgt;
         } else {
             $position = (int) $position;
             $parentchild = $parent->children;
             $parentpos = $parentchild->$position;
-            $parentpos_left = $parentpos->$options_structure_left;
+            $parentpos_left = $parentpos->lft;
             //$ref_lft = $parent['children'][(int)$position][$this->options['structure']["left"]];
             $ref_lft = $parentpos_left;
         }
         $sql[] = "UPDATE {block_interactivetree_struct} 
-		    SET {$this->osleft} = {$this->osleft} + 2
-		    WHERE 
-		    {$this->osleft}  >= :ref ";
+		    SET lft = lft + 2
+		    WHERE lft  >= :ref ";
         $params[]=array('ref'=> $ref_lft );
         
 
         // update right indexes
         $ref_rgt = false;
         if (!$parent->children) {
-            $ref_rgt = $parent->$options_structure_right;
+            $ref_rgt = $parent->rgt;
         } else if (!isset($parent->children->$position)) {
-            $ref_rgt = $parent->$options_structure_right;
+            $ref_rgt = $parent->rgt;
         } else {
             $position = (int) $position;
             $parentchild = $parent->children;
             $parentpos = $parentchild->$position;
-            $parentpos_left = $parentpos->$options_structure_left;
+            $parentpos_left = $parentpos->lft;
 
             //$ref_rgt = $parent['children'][(int)$position][$this->options['structure']["left"]] + 1;
             $ref_rgt = $parentpos_left + 1;
         }
         $sql[] = "UPDATE {block_interactivetree_struct} 
-		    SET  {$this->osright} = {$this->osright} + 2
-		    WHERE {$this->osright} >= :refright";
+		    SET  rgt = rgt + 2
+		    WHERE rgt >= :refright";
         $params[]= array('refright'=>$ref_rgt );
         
-
-
         //$tmp = array();
         $insert_temp = new Stdclass();
-        foreach ($this->options['structure'] as $k => $v) {
-            switch ($k) {
-                case 'id':
-                  //  $tmp[] = null;
-                    $insert_temp->id = null;
-                    break;
-                case 'left':
-                   // $tmp[] = (int) $ref_lft;
-                    $insert_temp->lft = (int) $ref_lft;
-                    break;
-                case 'right':
-                   // $tmp[] = (int) $ref_lft + 1;
-                    $insert_temp->rgt = (int) $ref_lft + 1;
-                    break;
-                case 'level':
-                   // $tmp[] = (int) $parent->$v + 1;
-                    $insert_temp->lvl = (int) $parent->$v + 1;
-                    break;
-                case 'parent_id':
-                   // $tmp[] = $parent->$option_structureid;
-                    $insert_temp->pid = $parent->$option_structureid;
-                    break;
-                case 'position':
-                    //$tmp[] = $position;
-                    $insert_temp->pos = $position;
-                    break;
-                default: 
-                    null;
-                   // $tmp[] = null;
-            }
-        }
-        //$par[] = $tmp;
-        $treestruct_table = $this->structuretable;
-        $node = $DB->insert_record($treestruct_table, $insert_temp);
-        foreach ($sql as $key => $values) {
-                      
+		$insert_temp->id = null;
+		$insert_temp->lft = (int) $ref_lft;
+		$insert_temp->rgt = (int) $ref_lft + 1;
+		$insert_temp->lvl = (int) $parent->pid + 1;
+		$insert_temp->pid = $parent->id;
+		$insert_temp->pos = $position;		
+		
+        $node = $DB->insert_record('block_interactivetree_struct', $insert_temp);
+        foreach ($sql as $key => $values) {                      
            try {
              $DB->execute($values,$params[$key]);       
 	       }
-             catch (Exception $e) {	    
+            catch (Exception $e) {	    
                throw new Exception('Could not create');
-             }
-	       
-	}
+             }       
+	    }
 
         if ($data && count($data)) {
-
             if (!$this->rn($node, $data)) {
                 $this->rm($node);
                 throw new Exception('Could not rename after create');
             }
         }
-
         return $node;
     }
 
@@ -273,124 +211,108 @@ class block_interactivetree_manage {
         if (!$parent->children) {
             $position = 0;
         }
-        $structureparentid = $this->osparentid;
-        $structureid = $this->osid;
-        $structurepos = $this->ospos;
-        $structureleft = $this->osleft;
-        $structureright = $this->osright;
-        $structurelevel = $this->oslevel;
-
-
-        if ($id->$structureparentid == $parent->$structureid && $position > $id->$structurepos) {
+        if ($id->pid == $parent->id && $position > $id->pos) {
             $position ++;
         }
         if ($parent->children && $position >= count($parent->children)) {
             $position = count($parent->children);
         }
-        if ($id->$structureleft < $parent->$structureleft && $id->$structureright > $parent->$structureright) {
+        if ($id->lft < $parent->lft && $id->rgt > $parent->rgt) {
             throw new Exception('Could not move parent inside child');
         }
 
         $tmp = array();
-        $tmp[] = (int) $id->$structureid;
+        $tmp[] = (int) $id->id;
         if ($id->children && is_array($id->children)) {
             foreach ($id->children as $c) {
-                $tmp[] = (int) $c->$structureid;
+                $tmp[] = (int) $c->id;
             }
         }
-        $width = (int) $id->$structureright - (int) $id->$structureleft + 1;
-
+        $width = (int) $id->rgt - (int) $id->lft + 1;
         $sql = array();
 
         // PREPARE NEW PARENT
         // update positions of all next elements
-        $sql[] = "
-			UPDATE {block_interactivetree_struct}
-				SET {$this->ospos} = :osposnext
-			WHERE 
-			        {$this->osid} != :osid   AND 
-				{$this->osparentid} = :osparentid  AND 
-				{$this->ospos}  >= :ospos  ";
-       $params[]=array('osposnext'=> $this->ospos + 1 ,'osid'=>(int) $id->$structureid,'osparentid'=>(int) $parent->$structureid,'ospos'=>$position); 
+        $sql[] = "UPDATE {block_interactivetree_struct}
+				SET pos = pos + 1
+			WHERE id != :osid AND pid = :osparentid AND pos  >= :ospos  ";
+       $params[]=array('osid'=>(int) $id->id,'osparentid'=>(int) $parent->id,'ospos'=>$position); 
 
         // update left indexes
         $ref_lft = false;
         $parent_c = $parent->children;
         if (!$parent->children) {
-            $ref_lft = $parent->$options_structure_right;
+            $ref_lft = $parent->rgt;
         } else if (!isset($parent_c->$position)) {
-            $ref_lft = $parent->$options_structure_right;
+            $ref_lft = $parent->rgt;
         } else {
             $parent_pos = $parent_c->$position;
-
-            $ref_lft = $parent_pos->$options_structure_left;
+            $ref_lft = $parent_pos->lft;
         }
         $sql[] = " UPDATE {block_interactivetree_struct}
-				SET {$this->osleft} = :osleftwidth 
-			WHERE 
-				{$this->osleft} >= :reflft AND 
-				{$this->osid} NOT IN(" . implode(',', $tmp) . ") 
+				SET lft = :osleftwidth 
+			WHERE lft >= :reflft AND 
+				id NOT IN(" . implode(',', $tmp) . ") 
 			";
-        $params[]=array('osleftwidth'=>$this->osleft + $width ,'reflft'=>(int) $ref_lft );
+        $params[]=array('osleftwidth'=>lft + $width ,'reflft'=>(int) $ref_lft );
         // update right indexes
         $ref_rgt = false;
         if (!$parent->children) {
-            $ref_rgt = $parent->$structureright;
+            $ref_rgt = $parent->rgt;
         } else if (!isset($parent_c->$position)) {
-            $ref_rgt = $parent->$structureright;
+            $ref_rgt = $parent->rgt;
         } else {
             $parent_pos = $parent_c->$position;
-            $ref_rgt = $parent_pos->$structureleft + 1;
+            $ref_rgt = $parent_pos->lft + 1;
         }
         $sql[] = "UPDATE {block_interactivetree_struct} 
-		    SET {$this->osright}  = :osrightwidth 
+		    SET rgt  = :osrightwidth 
 		    WHERE 
-	            {$this->osright} >=  :ref_rgt AND 
-	            {$this->osid} NOT IN(" . implode(',', $tmp) . ") ";
-        $params[]= array('osrightwidth'=>$this->osright + $width ,'ref_rgt'=> (int) $ref_rgt);
+	            rgt >=  :ref_rgt AND 
+	            id NOT IN(" . implode(',', $tmp) . ") ";
+        $params[]= array('osrightwidth'=>rgt + $width ,'ref_rgt'=> (int) $ref_rgt);
 
         // MOVE THE ELEMENT AND CHILDREN
         // left, right and level
-        $diff = $ref_lft - (int) $id->$structureleft;
+        $diff = $ref_lft - (int) $id->lft;
 
         if ($diff > 0) {
             $diff = $diff - $width;
         }
-        $ldiff = ((int) $parent->$structurelevel + 1) - (int) $id->$structurelevel;
+        $ldiff = ((int) $parent->lvl + 1) - (int) $id->lvl;
         $sql[] = " UPDATE {block_interactivetree_struct}
-		   SET {$this->osright} = :osrightdiff , {$this->osleft} = :osleftdiff , 
-	            {$this->oslevel} = :osleveldiff 
-		    WHERE  {$this->osid} IN (" . implode(',', $tmp) . ") ";
-        $params =array('osrightdiff'=> $this->osright + $diff,'osleftdiff'=>  $this->osleft + $diff,'osleveldiff'=> $this->oslevel + $ldiff );
+		   SET rgt = :osrightdiff , lft = :osleftdiff , 
+	            lvl = :osleveldiff 
+		    WHERE  id IN (" . implode(',', $tmp) . ") ";
+        $params =array('osrightdiff'=> rgt + $diff,'osleftdiff'=>  lft + $diff,'osleveldiff'=> lvl + $ldiff );
         
         // position and parent_id
         $sql[] = " UPDATE {block_interactivetree_struct}
-		  SET {$this->ospos} = :ospos , {$this->osparentid} = :osparentid 
-		  WHERE {$this->osid} = :osid  ";
-        $params[]= array('ospos'=> $position, 'osparentid'=>(int) $parent->$structureid , 'osid'=>(int) $id->$structureid );
+		  SET pos = :ospos , pid = :osparentid 
+		  WHERE id = :osid  ";
+        $params[]= array('ospos'=> $position, 'osparentid'=>(int) $parent->id , 'osid'=>(int) $id->id );
 
         // CLEAN OLD PARENT
         // position of all next elements
         $sql[] = " UPDATE {block_interactivetree_struct}
-		   SET {$this->ospos} = :osprevious
-		   WHERE {$this->osparentid} = :osparentid  AND 
-		    {$this->ospos} > :ospos  ";
-       $params[]=array('osprevious'=> $this->ospos- 1 ,'osparentid'=> (int) $id->$structureparentid ,'ospos'=> (int) $id->$options_structure_pos);         
+		   SET pos = pos - 1
+		   WHERE pid = :osparentid AND pos > :ospos  ";
+       $params[]=array('osparentid'=> (int) $id->pid ,'ospos'=> (int) $id->$options_structure_pos);         
         
         // left indexes
         $sql[] = "UPDATE {block_interactivetree_struct}
-		  SET {$this->osleft} = :osleftwidth 
-                  WHERE {$this->osleft} > :osleft  AND 
-		  {$this->osid} NOT IN(" . implode(',', $tmp) . ")";
-        $params[]= array('osleftwidth'=>$this->osleft - $width ,'osleft'=>(int) $id->$structureright);        
+		  SET lft = :osleftwidth 
+                  WHERE lft > :osleft  AND 
+		  id NOT IN(" . implode(',', $tmp) . ")";
+        $params[]= array('osleftwidth'=>lft - $width ,'osleft'=>(int) $id->rgt);        
         
         // right indexes
         $sql[] = "
 			UPDATE {block_interactivetree_struct}
-			SET {$this->osright} = :osrightwidth 
-			WHERE {$this->osright} > :osright  AND 
-			{$this->osid} NOT IN(" . implode(',', $tmp) . ") ";
-        $params[]= array('osrightwidth'=>$this->osright - $width ,'osright'=> (int) $id->$structureright );
+			SET rgt = :osrightwidth 
+			WHERE rgt > :osright  AND 
+			id NOT IN(" . implode(',', $tmp) . ") ";
+        $params[]= array('osrightwidth'=>rgt - $width ,'osright'=> (int) $id->rgt );
 
         foreach ($sql as $key => $value) {
             //echo preg_replace('@[\s\t]+@',' ',$v) ."\n";
@@ -411,27 +333,17 @@ class block_interactivetree_manage {
         if ($parent == 0 || $id == 0 || $id == 1) {
             throw new Exception('Could not copy inside parent 0, or copy root nodes');
         }
-
-
         $parent = $this->get_node($parent, array('with_children' => true, 'with_path' => true));
-        $id = $this->get_node($id, array('with_children' => true, 'deep_children' => true, 'with_path' => true));
+        $id = $this->get_node($id, array('with_children' => true, 'deep_children' => true, 'with_path' => true));     
 
-        $osleft = $this->osleft;
-        $osright = $this->osright;
-        $osparentid = $this->osparentid;
-        $osid = $this->osid;
-        $ospos = $this->ospos;
-        $oslvl = $this->oslevel;
-
-
-        $old_nodes = $DB->get_records_sql("SELECT * FROM { " . $this->structuretable . " }
-			WHERE {$this->osleft}  > :osleft  AND $osright < :osright  
-			ORDER BY  $osleft ",array('osleft'=>$id->$osleft ,'osright'=>$id->$osright ));
+        $old_nodes = $DB->get_records_sql("SELECT * FROM {block_interactivetree_struct }
+			WHERE lft  > :osleft  AND rgt < :osright  
+			ORDER BY  lft ",array('osleft'=>$id->lft ,'osright'=>$id->rgt ));
 
         if (!$parent->children) {
             $position = 0;
         }
-        if ($id->$osparentid == $parent->$osid && $position > $id->$ospos) {
+        if ($id->pid == $parent->id && $position > $id->pos) {
             //$position ++;
         }
         if ($parent->children && $position >= count($parent->children)) {
@@ -439,84 +351,85 @@ class block_interactivetree_manage {
         }
 
         $tmp = array();
-        $tmp[] = (int) $id->$osid;
+        $tmp[] = (int) $id->id;
         if ($id->children && is_array($id->children)) {
             foreach ($id->children as $c) {
-                $tmp[] = (int) $c[$osid];
+                $tmp[] = (int) $c[id];
             }
         }
-        $width = (int) $id->$osright - (int) $id->$osleft + 1;
+        $width = (int) $id->rgt - (int) $id->lft + 1;
 
         $sql = array(); $params=array();
 
         // PREPARE NEW PARENT
         // update positions of all next elements
-        $sql[] = "  UPDATE { " . $this->structuretable . " }
-		    SET $ospos = :osposnext
-		    WHERE $osparentid  = :osparentid  AND 
-		     $ospos  >= :ospos ";
+        $sql[] = "  UPDATE {block_interactivetree_struct }
+		    SET pos = pos + 1
+		    WHERE pid  = :osparentid  AND 
+		     pos  >= :ospos ";
         
-        $params[]= array('osposnext'=> $ospos  + 1 ,'osparentid'=>(int) $parent->$osid ,'ospos'=> $position);
+        $params[]= array('osparentid'=>(int) $parent->id ,'ospos'=> $position);
 
         // update left indexes
         $ref_lft = false;
         $parent_c = $parent->children;
         if (!$parent->children) {
-            $ref_lft = $parent->$osright;
+            $ref_lft = $parent->rgt;
         } else if (!isset($parent_c->$position)) {
-            $ref_lft = $parent->$osright;
+            $ref_lft = $parent->rgt;
         } else {
             $par_pos = $parent_c->$position;
-            $ref_lft = $par_pos->$osleft;
+            $ref_lft = $par_pos->lft;
         }
-        $sql[] = " UPDATE { " . $this->structuretable . " }
-		   SET $osleft  =  :osleftwidth 
-		    WHERE $osleft  >=  :osleft  ";
-        $params[]= array('osleftwidth'=>$osleft  +  $width  ,'osleft'=>(int) $ref_lft);
+        $sql[] = " UPDATE {block_interactivetree_struct }
+		   SET lft  =  :osleftwidth 
+		    WHERE lft  >=  :osleft  ";
+        $params[]= array('osleftwidth'=>lft  +  $width  ,'osleft'=>(int) $ref_lft);
         
         // update right indexes
         $ref_rgt = false;
         if (!$parent->children) {
-            $ref_rgt = $parent->$osright;
+            $ref_rgt = $parent->rgt;
         } else if (!isset($parent_c->$position)) {
-            $ref_rgt = $parent->$osright;
+            $ref_rgt = $parent->rgt;
         } else {
             $par_pos = $parent_c->$position;
-            $ref_rgt = $par_pos->$osleft + 1;
+            $ref_rgt = $par_pos->lft + 1;
         }
-        $sql[] = "  UPDATE { " . $this->structuretable . " }
-		    SET $osright  =  :osrightwidth
-		    WHERE $osright >= :osright ";
-        $params[]= array('osrightwidth'=>  $osright  +  $width ,'osright'=>(int) $ref_rgt);
+        $sql[] = "  UPDATE {block_interactivetree_struct }
+		    SET rgt  =  :osrightwidth
+		    WHERE rgt >= :osright ";
+        $params[]= array('osrightwidth'=>  rgt  +  $width ,'osright'=>(int) $ref_rgt);
 
         // MOVE THE ELEMENT AND CHILDREN
         // left, right and level
-        $diff = $ref_lft - $id->$osleft;
+        $diff = $ref_lft - $id->lft;
 
         if ($diff <= 0) {
             $diff = $diff - $width;
         }
-        $ldiff = ($parent->$oslvl + 1) - $id->$oslvl;
+        $ldiff = ($parent->lvl + 1) - $id->lvl;
 
         // build all fields + data table
-        $fields = array_combine($this->options['structure'], $this->options['structure']);
-        unset($fields['id']);
-        $fields[$osleft] = $osleft + $diff;
-        $fields[$osright] = $osright + $diff;
-        $fields[$oslvl] = $oslvl + $ldiff;
+        //$fields = array_combine($this->options['structure'], $this->options['structure']);
+        //unset($fields['id']);
+        //$fields[lft] = lft + $diff;
+        //$fields[rgt] = rgt + $diff;
+        //$fields[lvl] = lvl + $ldiff;
+		$fields=array('rgt'=>'rgt'+$diff,'lft'=>'lft'+$diff,'lvl'=>'lvl'+$ldiff);
 
-        $record_toinsert = $DB->get_record_sql("SELECT  implode(',', array_values($fields)) FROM { " . $this->structuretable . " }WHERE $this->osid IN (" . implode(",", $tmp) . ") 
-			ORDER BY  $oslvl ASC ");
+        $record_toinsert = $DB->get_record_sql("SELECT  implode(',', array_values($fields)) FROM {block_interactivetree_struct }WHEREid IN (" . implode(",", $tmp) . ") 
+			ORDER BY  lvl ASC ");
 
         $insert_temp = new stdClass();
-        $insert_temp->$osid = null;
-        $insert_temp->$osright = $record_toinsert->$fields[$osright];
-        $insert_temp->$osleft = $record_toinsert->$fields[$osleft];
-        $insert_temp->$oslvl = $record_toinsert->$fields[$oslvl];
-        $insert_temp->$osparentid = $record_toinsert->$fields[$osparentid];
-        $insert_temp->$ospos = $record_toinsert->$fields[$ospos];
+        $insert_temp->id = null;
+        $insert_temp->rgt = $record_toinsert->$fields['rgt'];
+        $insert_temp->lft = $record_toinsert->$fields['lft'];
+        $insert_temp->lvl = $record_toinsert->$fields['lvl'];
+        $insert_temp->pid = $record_toinsert->pid;
+        $insert_temp->pos = $record_toinsert->pos;
 
-        $iid = $DB->insert_record($this->structuretable, $insert_temp);
+        $iid = $DB->insert_record('block_interactivetree_struct', $insert_temp);
 
 
         foreach ($sql as $key => $value) {
@@ -529,10 +442,10 @@ class block_interactivetree_manage {
 
 
         try {
-            $DB->execute("  UPDATE { " . $this->structuretable . " }
-			    SET {$this->ospos} = :ospos  ,
-			    {$this->osparentid} = :osparentid 
-			    WHERE {$this->osid}  = :osid ",array('ospos'=>$position,'osparentid'=>$parent->$osid ,'osid'=>$iid));
+            $DB->execute("  UPDATE {block_interactivetree_struct }
+			    SET pos = :ospos  ,
+			    pid = :osparentid 
+			    WHERE id  = :osid ",array('ospos'=>$position,'osparentid'=>$parent->id ,'osid'=>$iid));
         } catch (Exception $e) {
 
             $this->rm($iid);
@@ -549,10 +462,10 @@ class block_interactivetree_manage {
 
         if (count($fields)) {
             try {
-                $data2structure = $this->data2structure;
+              //  $data2structure = $this->data2structure;
 
-                $DB->execute("INSERT INTO {block_interactivetree_data} ( $this->data2structure ," . implode(",", $fields) . ") 
-				SELECT $iid ," . implode(",", $fields) . " FROM $this->datatable WHERE $this->data2structure = $id->$data2structure  
+                $DB->execute("INSERT INTO {block_interactivetree_data} ( id ," . implode(",", $fields) . ") 
+				SELECT $iid ," . implode(",", $fields) . " FROM {block_interactivetree_data} WHERE id = $id->id 
 				ON DUPLICATE KEY UPDATE  $update_fields ");
             } catch (Exception $e) {
                 $this->rm($iid);
@@ -560,20 +473,20 @@ class block_interactivetree_manage {
             }
         }
 
-        $new_nodes = $DB->get_records_sql("SELECT * FROM { " . $this->structuretable . " }
-			WHERE {$this->osleft} > :osleft AND  {$this->osright} < :osright AND {$this->osid} != :osid  
-			ORDER BY {$this->osleft}", array('osleft'=> $ref_lft,'osright'=> ($ref_lft + $width - 1),'osid'=> $iid ));
+        $new_nodes = $DB->get_records_sql("SELECT * FROM {block_interactivetree_struct }
+			WHERE lft > :osleft AND  rgt < :osright AND id != :osid  
+			ORDER BY lft", array('osleft'=> $ref_lft,'osright'=> ($ref_lft + $width - 1),'osid'=> $iid ));
 
 
         $parents = array();
         foreach ($new_nodes as $node) {
-            $nodeleft = $node->$osleft;
+            $nodeleft = $node->lft;
 
             if (!isset($parents->$nodeleft)) {
                 $parents->$nodeleft = $iid;
             }
-            for ($i = $node->$osleft + 1; $i < $node->$osright; $i++) {
-                $parents->$i = $node->$osid;
+            for ($i = $node->lft + 1; $i < $node->rgt; $i++) {
+                $parents->$i = $node->id;
             }
         }
         $sql = array();
@@ -581,18 +494,18 @@ class block_interactivetree_manage {
 
 
         foreach ($new_nodes as $k => $node) {
-            $nodeleft = $node->$osleft;
-            $sql[] = " UPDATE { " . $this->structuretable . " }
-		       SET {$this->osparentid} = :osparentid 
-			WHERE {$this->osid} = :osid ";
-	     $params[]=array('osparentid'=>$parents->$nodeleft,'osid'=>$node->$osid);		
+            $nodeleft = $node->lft;
+            $sql[] = " UPDATE {block_interactivetree_struct }
+		       SET pid = :osparentid 
+			WHERE id = :osid ";
+	     $params[]=array('osparentid'=>$parents->$nodeleft,'osid'=>$node->id);		
             if (count($fields)) {
                 $up = "";
                 foreach ($fields as $f)
-                    $keyid = $k->$osid;
-                $sql[] = "INSERT INTO {block_interactivetree_data} (" . $this->data2structure . "," . implode(",", $fields) . ") 
-					SELECT " . $node->$osid . "," . implode(",", $fields) . " FROM {block_interactivetree_data} 
-						WHERE " . $this->data2structure . " = " . $old_nodes->$keyid . " 
+                    $keyid = $k->id;
+                $sql[] = "INSERT INTO {block_interactivetree_data} (id," . implode(",", $fields) . ") 
+					SELECT " . $node->id . "," . implode(",", $fields) . " FROM {block_interactivetree_data} 
+						WHERE id = " . $old_nodes->$keyid . " 
 					ON DUPLICATE KEY UPDATE " . $update_fields . " 
 				";
 				
@@ -619,14 +532,11 @@ class block_interactivetree_manage {
             throw new Exception('Could not create inside roots');
         }
         $data = $this->get_node($id, array('with_children' => true, 'deep_children' => true));
-        $osleft = $this->osleft;
-        $osright = $this->osright;
-        $osparentid = $this->osparentid;
-        $ospos = $this->ospos;
-        $lft = $data->$osleft;
-        $rgt = $data->$osright;
-        $pid = $data->$osparentid;
-        $pos = $data->$ospos;
+       
+        $lft = $data->lft;
+        $rgt = $data->rgt;
+        $pid = $data->pid;
+        $pos = $data->pos;
         $dif = $rgt - $lft + 1;
 
         if ($id) {
@@ -639,36 +549,27 @@ class block_interactivetree_manage {
 	$params=array();
         // deleting node and its children from structure
         $sql[] = "DELETE FROM {block_interactivetree_struct}
-		    WHERE {$this->osleft} >= :osleft  AND {$this->osright} <= :osright AND {$this->osid} = :osid ";
+		    WHERE lft >= :osleft  AND rgt <= :osright AND id = :osid ";
 			
         $params[]= array('osleft'=>$lft,'osright'=> $rgt,'osid'=>$data->id);
 	
         // shift left indexes of nodes right of the node
-        $sql[] = "
-			UPDATE {" . $this->structuretable . " }
-				SET {$this->osleft} = :setos
-			WHERE {$this->osleft} > :osleft
-		";
-        $params[]= array('setos'=> $this->osleft -  $dif ,'osleft'=> $rgt);		
+        $sql[] = "UPDATE {block_interactivetree_struct}
+				SET lft = :setos WHERE lft > :osleft";
+        $params[]= array('setos'=> lft -  $dif ,'osleft'=> $rgt);		
 		
         // shift right indexes of nodes right of the node and the node's parents
-        $sql[] = "
-			UPDATE { " . $this->structuretable . " }
-				SET {$this->osright} = :setright
-			WHERE {$this->osright} > :osright
-		";
-        $params[]= array('setright'=> $this->osright - $dif  ,'osright'=> $lft );			
+        $sql[] = "UPDATE {block_interactivetree_struct }
+				SET rgt = :setright WHERE rgt > :osright";
+        $params[]= array('setright'=> rgt - $dif  ,'osright'=> $lft );			
 		
         // Update position of siblings below the deleted node
-        $sql[] = "
-			UPDATE { " . $this->structuretable . " }
-				SET {$this->ospos} = :setpos 
-			WHERE {$this->osparentid} = :osparentid  AND $this->ospos > :ospos  
-		";
-	$params[]= array('setpos'=> $this->ospos - 1  ,'osparentid'=> $pid ,'ospos'=>$pos );		
+        $sql[] = "UPDATE {block_interactivetree_struct }
+				SET pos = pos - 1  WHERE pid = :osparentid  AND pos > :ospos";
+	    $params[]= array('osparentid'=> $pid ,'ospos'=>$pos );		
 		
         // delete from data table
-        if ($this->datatable) {
+       // if ($this->datatable) {
             $tmp = array();
             $tmp[] = (int) $data->id;
             if ($data->children && is_array($data->children)) {
@@ -676,14 +577,12 @@ class block_interactivetree_manage {
                     $tmp[] = $v->id;
                 }
             }
-            $sql[] = "DELETE FROM {block_interactivetree_data} WHERE $this->data2structure  IN (" . implode(',', $tmp) . ")";
-        }
+            $sql[] = "DELETE FROM {block_interactivetree_data} WHERE id IN (" . implode(',', $tmp) . ")";
+       // }
 
         foreach ($sql as $k=>$v) {
-        try {
-		
-                $DB->execute($v, $params[$k]);
-
+        try {		
+             $DB->execute($v, $params[$k]);
             } catch (Exception $e) {
                 //$this->reconstruct();
                 throw new Exception('Could not remove');
@@ -695,7 +594,7 @@ class block_interactivetree_manage {
     public function rn($id, $data) {
         global $DB, $CFG, $PAGE;
 
-        $checking_existingnode = $DB->get_record_sql('SELECT 1 AS res FROM ' . $DB->get_prefix() . $this->structuretable . ' WHERE ' . $this->osid . ' = ' . (int) $id);
+        $checking_existingnode = $DB->get_record_sql("SELECT 1 AS res FROM {block_interactivetree_struct} WHERE id = $id");
         if (!$checking_existingnode->res) {
             throw new Exception('Could not rename non-existing node');
         }
@@ -707,9 +606,9 @@ class block_interactivetree_manage {
             }
         }
         if (count($tmp)) {
-            $tmp[$this->data2structure] = $id;
+            $tmp['id'] = $id;
             $sql = "
-				INSERT INTO 
+				    INSERT INTO 
 					{block_interactivetree_data} (" . implode(',', array_keys($tmp)) . ") 
 					VALUES(?" . str_repeat(',?', count($tmp) - 1) . ") 
 				ON DUPLICATE KEY UPDATE 
@@ -725,150 +624,98 @@ class block_interactivetree_manage {
     }
 
     public function analyze($get_errors = false) {
-
         global $DB, $CFG, $PAGE;
-        $report = array();
-        //if((int)
+        $report = array();       
 
-        $morethan_onerootnode = $DB->get_record_sql("SELECT COUNT($this->osid) AS res FROM { " . $this->structuretable . " } WHERE {$this->osparentid} = 0");
-
+        $morethan_onerootnode = $DB->get_record_sql("SELECT COUNT(id) AS res FROM {block_interactivetree_struct } WHERE pid = 0");
         if ($morethan_onerootnode->res !== 1) {
             $report[] = "No or more than one root node.";
         }
         //if((int)
-        $rootnode_leftindex = $DB->get_record_sql("SELECT {$this->osleft} AS res FROM {". $this->structuretable ."} WHERE {$this->osparentid} = 0");
-
+        $rootnode_leftindex = $DB->get_record_sql("SELECT lft AS res FROM {block_interactivetree_struct} WHERE pid = 0");
         if ($rootnode_leftindex->res !== 1) {
             $report[] = "Root node's left index is not 1.";
         }
-        $checking_missingparent = $DB->get_record_sql("
-			SELECT 
-				COUNT(" . $this->osid . ") AS res 
-			FROM { " . $this->structuretable . " }s 
-			WHERE 
-				$this->osparentid != 0 AND 
-				(SELECT COUNT(" . $this->osid . ") FROM { " . $this->structuretable . " } WHERE {$this->osid} = s.{$this->osparentid}) = 0");
+        $checking_missingparent = $DB->get_record_sql("	SELECT COUNT(id) AS res 
+			FROM {block_interactivetree_struct } s 
+			WHERE pid != 0 AND 
+				 (SELECT COUNT(id) FROM {block_interactivetree_struct } WHERE id =s.pid) = 0");
 
         if ($checking_missingparent->res > 0) {
             $report[] = "Missing parents.";
         }
 
-        $rightindex = $DB->get_record_sql("SELECT MAX($this->osright) AS res FROM {". $this->structuretable ."} ");
-        $nodecount = $DB->get_record_sql("SELECT COUNT($this->osid) AS res FROM {". $this->structuretable ."} ");
+        $rightindex = $DB->get_record_sql("SELECT MAX(rgt) AS res FROM {block_interactivetree_struct} ");
+        $nodecount = $DB->get_record_sql("SELECT COUNT(id) AS res FROM {block_interactivetree_struct} ");
 
         if ($rightindex->res / 2 != $nodecount->res) {
             $report[] = "Right index does not match node count.";
         }
 
-        $dup_rightindex = $DB->get_record_sql("SELECT COUNT(DISTINCT $this->osright) AS res FROM {". $this->structuretable ."} ");
-        $dup_leftindex = $DB->get_record_sql("SELECT COUNT(DISTINCT $this->osleft) AS res FROM {". $this->structuretable ."} ");
+        $dup_rightindex = $DB->get_record_sql("SELECT COUNT(DISTINCT rgt) AS res FROM {block_interactivetree_struct} ");
+        $dup_leftindex = $DB->get_record_sql("SELECT COUNT(DISTINCT lft) AS res FROM {block_interactivetree_struct} ");
         if ($dup_rightindex->res != $dup_leftindex->res) {
             $report[] = "Duplicates in nested set.";
         }
 
-        $un_node = $DB->get_record_sql("SELECT COUNT(DISTINCT $this->osid) AS res FROM {". $this->structuretable ."} ");
-        $un_left = $DB->get_record_sql("SELECT COUNT(DISTINCT $this->osleft) AS res FROM {". $this->structuretable ."} ");
+        $un_node = $DB->get_record_sql("SELECT COUNT(DISTINCTid) AS res FROM {block_interactivetree_struct} ");
+        $un_left = $DB->get_record_sql("SELECT COUNT(DISTINCT lft) AS res FROM {block_interactivetree_struct} ");
         if ($un_node->res != $un_left->res) {
             $report[] = "Left indexes not unique.";
         }
-
     
-        $un_node1 = $DB->get_record_sql("SELECT COUNT(DISTINCT $this->osid) AS res FROM {" .$this->structuretable."} ");
-        $rt_index = $DB->get_record_sql("SELECT COUNT(DISTINCT $this->osright) AS res FROM {" .$this->structuretable."} ");
+        $un_node1 = $DB->get_record_sql("SELECT COUNT(DISTINCTid) AS res FROM {block_interactivetree_struct} ");
+        $rt_index = $DB->get_record_sql("SELECT COUNT(DISTINCT rgt) AS res FROM {block_interactivetree_struct} ");
         if ($un_node1->res != $rt_index->res) {
             $report[] = "Right indexes not unique.";
         }
 
-
         $checking_leftrightindex = $DB->get_record_sql("
-				SELECT 
-					s1.$this->osid AS res 
-				FROM { " . $this->structuretable . " }s1, { " . $this->structuretable . " }s2 
-				WHERE 
-					s1.{$this->osid} != s2.{$this->osid} AND 
-					s1.{$this->osleft} = s2.{$this->osright} 
-				LIMIT 1");
+				SELECT s1.id AS res 
+				FROM {block_interactivetree_struct }s1, {block_interactivetree_struct }s2 
+				WHERE s1.id != s2.id AND s1.lft = s2.rgt LIMIT 1");
         if ($checking_leftrightindex->res) {
             $report[] = "Nested set - matching left and right indexes.";
         }
 	
         $checking_positions1 = $DB->get_record_sql("
-				SELECT 
-					$this->osid AS res 
-				FROM { " . $this->structuretable . " }s 
-				WHERE 
-					{$this->ospos}  >= (
-						SELECT 
-							COUNT($this->osid) 
-						FROM { " . $this->structuretable . " }
-						WHERE  {$this->osparentid}  = s.{$this->osparentid}
-					)
+				SELECT id AS res 
+				FROM {block_interactivetree_struct} s 
+				WHERE pos  >= ( SELECT COUNT(id) FROM {block_interactivetree_struct} WHERE  pid=s.pid)
 				LIMIT 1");
-
-
+		
         $positon2 = $DB->get_record_sql("
-				SELECT 
-					s1.{$this->osid} AS res 
-				FROM { " . $this->structuretable . " }s1, { " . $this->structuretable . " }s2 
+				SELECT s1.id AS res 
+				FROM {block_interactivetree_struct } s1, {block_interactivetree_struct } s2 
 				WHERE 
-					s1.{$this->osid}  != s2.{$this->osid} AND 
-					s1.{$this->osparentid}  = s2.{$this->osparentid}  AND 
-					s1.{$this->ospos}  = s2.{$this->ospos} 
+					s1.id != s2.id AND s1.pid = s2.pid  AND s1.pos = s2.pos 
 				LIMIT 1");
 
         if (isset($checking_positions1->res) || isset($positon2->res)) {
             $report[] = "Positions not correct.";
         }
-
-
-        $checking_Adjacency = $DB->get_record_sql("
-			SELECT 
-				COUNT($this->osid) as res FROM { " . $this->structuretable . " }s 
+		$checking_Adjacency = $DB->get_record_sql("
+			SELECT COUNT(id) as res FROM {block_interactivetree_struct} s 
 			WHERE 
-				(
-					SELECT 
-						COUNT($this->osid) 
-					FROM { " . $this->structuretable . " }
-					WHERE 
-						{$this->osright} < s.{$this->osright} AND 
-						{$this->osleft} > s.{$this->osleft} AND 
-						{$this->oslevel} = s.{$this->oslevel} + 1
-				) != 
-				(
-					SELECT 
-						COUNT(*) 
-					FROM { " . $this->structuretable . " }
-					WHERE 
-						{$this->osparentid} = s.{$this->osid}
-				)");
+				(SELECT COUNT(id) FROM {block_interactivetree_struct}
+					WHERE rgt < s.rgt AND lft > s.lft AND lvl = s.lvl + 1) != 
+				(SELECT COUNT(*) FROM {block_interactivetree_struct} WHERE pid = s.id)");
 
         if ($checking_Adjacency->res) {
             $report[] = "Adjacency and nested set do not match.";
         }
+        $checking_missingrecord = $DB->get_record_sql("SELECT COUNT(id) AS res 
+				FROM {block_interactivetree_struct } s 
+				WHERE (SELECT COUNT(id) FROM {block_interactivetree_data} WHERE id = s.id) = 0");
 
-
-
-        $checking_missingrecord = $DB->get_record_sql("
-				SELECT 
-					COUNT($this->osid) AS res 
-				FROM { " . $this->structuretable . " }s 
-				WHERE 
-					(SELECT COUNT(" . $this->data2structure . ") FROM {block_interactivetree_data} WHERE " . $this->data2structure . " = s.$this->osid) = 0
-			");
-
-        if ($this->datatable && $checking_missingrecord->res) {
+        if ($checking_missingrecord->res) {
             $report[] = "Missing records in data table.";
         }
 
-
-        $checking_danglingrecord = $DB->get_record_sql("
-				SELECT 
-					COUNT(" . $this->data2structure . ") AS res 
+        $checking_danglingrecord = $DB->get_record_sql("SELECT COUNT(id) AS res 
 				FROM {block_interactivetree_data} s 
-				WHERE 
-					(SELECT COUNT($this->osid) FROM { " . $this->structuretable . " } WHERE {$this->osid} = s." . $this->data2structure . ") = 0
-			");
-        if ($this->datatable && $checking_danglingrecord->res) {
+				WHERE (SELECT COUNT(id) FROM {block_interactivetree_struct } WHERE id = s.id) = 0");
+        if ($checking_danglingrecord->res) {
             $report[] = "Dangling records in data table.";
         }
         return $get_errors ? $report : count($report) == 0;
@@ -876,25 +723,18 @@ class block_interactivetree_manage {
 
    
     public function dump() {
-        global $DB, $CFG;
-        $selectedstructure = implode(", s.", $this->options['structure']);
-        $selecteddata = implode(", d.", $this->options['data']);
-        
+        global $DB, $CFG;        
         $nodes = $DB->get_records_sql("
-			SELECT 
-				s.$selectedstructure, 
-				d.$selecteddata 
-			FROM 
-				{block_interactivetree_struct} s, 
-				{block_interactivetree_data} d 
-			WHERE 
-				s. {$this->osid}  = d.{$this->data2structure} 
-			ORDER BY {$this->osleft}"
+			SELECT s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos, d.nm 
+			FROM {block_interactivetree_struct} s, 
+				  {block_interactivetree_data} d 
+			WHERE s. id  = d.id 
+			ORDER BY lft"
         );
         echo "\n\n";
         foreach ($nodes as $node) {
-            echo str_repeat(" ", (int) $node[$this->oslevel] * 2);
-            echo $node[$this->osid] . " " . $node["nm"] . " (" . $node[$this->osleft] . "," . $node[$this->osright] . "," . $node[$this->oslevel] . "," . $node[$this->osparentid] . "," . $node[$this->ospos] . ")" . "\n";
+            echo str_repeat(" ", (int) $node[lvl] * 2);
+            echo $node['id'] . " " . $node["nm"] . " (" . $node['lft'] . "," . $node['rgt'] . "," . $node['lvl'] . "," . $node['pid'] . "," . $node['pos'] . ")" . "\n";
         }
         echo str_repeat("-", 40);
         echo "\n\n";
