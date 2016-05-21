@@ -1,6 +1,5 @@
 <?php
-
-//defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 require_once('../../config.php');
 
 // TO DO: better exceptions, use params
@@ -11,8 +10,7 @@ class block_interactivetree_manage {
         $sql = " SELECT s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm 
 			FROM {block_interactivetree_struct} as  s, {block_interactivetree_data} as d 
 			WHERE s.id = d.id AND s.id = ? ";
-        $node = $DB->get_record_sql($sql, array($id));	
-        
+        $node = $DB->get_record_sql($sql, array($id));        
         if (!$node) {
             throw new Exception('Node does not exist');
         }
@@ -163,7 +161,7 @@ class block_interactivetree_manage {
             throw new Exception('Could not create inside roots');
         }
         $data = $this->get_node($id, array('with_children' => true, 'deep_children' => true));
-        $dif = $rgt - $lft + 1;
+        $dif = $data->rgt - $data->lft + 1;
 
         if ($id) {
             $children_exists = $DB->get_records('block_interactivetree_struct', array('pid' => $id));
@@ -219,8 +217,8 @@ class block_interactivetree_manage {
     public function renamenode($id, $data) {
         global $DB;
 
-        $checking_existingnode = $DB->get_record_sql("SELECT 1 AS res FROM {block_interactivetree_struct} WHERE id = $id");
-        if (!$checking_existingnode->res) {
+        $existingnode = $DB->get_record_sql("SELECT 1 AS res FROM {block_interactivetree_struct} WHERE id = $id");
+        if (!$existingnode->res) {
             throw new Exception('Could not rename non-existing node');
         }
 

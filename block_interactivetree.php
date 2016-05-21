@@ -1,7 +1,4 @@
 <?php
-
-//
-//
 // This software is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -38,12 +35,11 @@ class block_interactivetree extends block_base {
     /** @var bool|null */
     protected $docked = null;
 
-    function init() {    
+    public function init() {    
         $this->blockname = get_class($this);        
         $this->title = get_string('pluginname', 'block_interactivetree');
-    }
-
-    /**
+	}
+	/**
      * All multiple instances of this block
      * @return bool Returns true
      */
@@ -60,14 +56,10 @@ class block_interactivetree extends block_base {
     }
 
     function specialization() {
-      //  $systemcontext = context_system::instance();
-      //  $title_string = format_string(get_string('pluginname', 'block_interactivetree'));
-
         if ($this->title == '') {
             $this->title = format_string(get_string('pluginname', 'block_interactivetree'));
         }
     }
-
     /**
      * Allow the user to configure a block instance
      * @return bool Returns true
@@ -93,7 +85,7 @@ class block_interactivetree extends block_base {
     function get_required_javascript() {
         global $PAGE;
         $PAGE->requires->jquery();
-        $PAGE->requires->js('/blocks/interactivetree/dist/jstree.js', true);
+        $PAGE->requires->js('/blocks/interactivetree/dist/jstree.min.js', true);
         $context = $PAGE->context;
 	    $PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js', true);
         
