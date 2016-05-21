@@ -96,14 +96,14 @@ class block_interactivetree_manage {
         if (!$parent->children) {
             $refleft = $parent->rgt;
         } else if (!isset($parent->children[$position])) {
-            $refleft = $parent->rgt;
-        } else {
-            $position = (int) $position;
-            $parentchild = $parent->children;
-            $parentpos = $parentchild->$position;
-            $parentpos_left = $parentpos->lft;
-            $refleft = $parentpos_left;
-        }
+                $refleft = $parent->rgt;
+            } else {
+                $position = (int) $position;
+                $parentchild = $parent->children;
+                $parentpos = $parentchild->$position;
+                $parentpos_left = $parentpos->lft;
+                $refleft = $parentpos_left;
+            }
         $sql[] = "UPDATE {block_interactivetree_struct}
 		         SET lft = lft + 2
 		         WHERE lft  >= :ref";
@@ -114,35 +114,34 @@ class block_interactivetree_manage {
         if (!$parent->children) {
             $refright = $parent->rgt;
         } else if (!isset($parent->children->$position)) {
-            $refright = $parent->rgt;
-        } else {
-            $position = (int) $position;
-            $parentchild = $parent->children;
-            $parentpos = $parentchild->$position;
-            $parentpos_left = $parentpos->lft;
-            $refright = $parentpos_left + 1;
-        }
+                $refright = $parent->rgt;
+            } else {
+                $position = (int) $position;
+                $parentchild = $parent->children;
+                $parentpos = $parentchild->$position;
+                $parentpos_left = $parentpos->lft;
+                $refright = $parentpos_left + 1;
+            }
         $sql[] = "UPDATE {block_interactivetree_struct}
 		         SET  rgt = rgt + 2
 		         WHERE rgt >= :refright";
         $params[] = array('refright' => $refright);    
         
-        $insert_temp = new Stdclass();
-		$insert_temp->id = null;
-		$insert_temp->lft = (int) $refleft;
-		$insert_temp->rgt = (int) $refleft + 1;
-		$insert_temp->lvl = (int) $parent->pid + 1;
-		$insert_temp->pid = $parent->id;
-		$insert_temp->pos = $position;
+        $inserttemp = new Stdclass();
+		$inserttemp->id = null;
+		$inserttemp->lft = (int) $refleft;
+		$inserttemp->rgt = (int) $refleft + 1;
+		$inserttemp->lvl = (int) $parent->pid + 1;
+		$inserttemp->pid = $parent->id;
+		$inserttemp->pos = $position;
 		
-        $node = $DB->insert_record('block_interactivetree_struct', $insert_temp);
+        $node = $DB->insert_record('block_interactivetree_struct', $inserttemp);
         foreach ($sql as $key => $values) {
            try {
-             $DB->execute($values,$params[$key]);
-	       }
-            catch (Exception $e) {
-               throw new Exception('Could not create');
-             }
+                $DB->execute($values,$params[$key]);
+	        } catch (Exception $e) {
+                throw new Exception('Could not create');
+            }
 	    }
 
         if ($data && count($data)) {
@@ -163,9 +162,10 @@ class block_interactivetree_manage {
         $data = $this->get_node($id, array('with_children' => true, 'deep_children' => true));
         $dif = $data->rgt - $data->lft + 1;
         if ($id) {
-            $children_exists = $DB->get_records('block_interactivetree_struct', array('pid' => $id));
-            if ($children_exists)
+            $childrenexists = $DB->get_records('block_interactivetree_struct', array('pid' => $id));
+            if ($childrenexists){
                 throw new Exception('could not remove');
+            }
         }
 
         $sql = array();
@@ -178,17 +178,17 @@ class block_interactivetree_manage {
         // Shift left indexes of nodes right of the node.
         $sql[] = "UPDATE {block_interactivetree_struct}
 			      SET lft = lft - :setleft WHERE lft > :osleft";
-        $params[]= array('setleft'=> $dif ,'osleft'=> $data->rgt);
+        $params[]= array('setleft' => $dif ,'osleft' => $data->rgt);
 		
         // Shift right indexes of nodes right of the node and the node's parents.
         $sql[] = "UPDATE {block_interactivetree_struct }
 				  SET rgt = rgt - :setright WHERE rgt > :osright";
-        $params[]= array('setright'=> $dif, 'osright'=> $data->lft );
+        $params[]= array('setright' => $dif, 'osright' => $data->lft );
 		
         // Update position of siblings below the deleted node.
         $sql[] = "UPDATE {block_interactivetree_struct }
 				  SET pos = pos - 1  WHERE pid = :osparentid  AND pos > :ospos";
-	    $params[]= array('osparentid'=> $data->pid ,'ospos'=>$data->pos );
+	    $params[]= array('osparentid' => $data->pid ,'ospos' => $data->pos );
 		
         // Delete from data table.       
             $tmp = array();
@@ -201,11 +201,11 @@ class block_interactivetree_manage {
             $sql[] = "DELETE FROM {block_interactivetree_data} WHERE id IN (" . implode(',', $tmp) . ")";
        
         foreach ($sql as $k=>$v) {
-        try {
-             $DB->execute($v, $params[$k]);
+            try {
+                $DB->execute($v, $params[$k]);
             } catch (Exception $e) {                
                 throw new Exception('Could not remove');
-           }
+            }
         }
         return true;
     }
@@ -216,7 +216,6 @@ class block_interactivetree_manage {
         if (!$existingnode->res) {
             throw new Exception('Could not rename non-existing node');
         }
-
         $tmp = array();
         if (isset($data['nm'])) {
             $tmp['nm'] = $data['nm'];

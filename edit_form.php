@@ -1,5 +1,4 @@
 <?php
-
 /**
 
  * Used to define settings of the block interactive tree
@@ -27,7 +26,7 @@ class block_interactivetree_edit_form extends block_edit_form {
         $mform->setType('addurlplace', PARAM_INT);
     }
 
-    function definition_after_data() {
+    public function definition_after_data() {
         global $DB;
         $mform = $this->_form;
         $node = $mform->getElementValue('config_node');
@@ -39,7 +38,7 @@ class block_interactivetree_edit_form extends block_edit_form {
                 $nodeid = $nodeinfo->id;
                 $availablefromgroup[] = $mform->createElement('static', 'config_description', '', $nodename, array('style' => 'width:35%'));
                 $availablefromgroup[] = $mform->createElement('text', 'config_' . $nodeid, $nodeid,
-                                        array('placeholder' => 'add url to ' . $nodename, 'style' => 'width:40%'));                
+                                        array('placeholder' => 'add url to ' . $nodename, 'style' => 'width:40%'));
             }
             $group = $mform->createElement('group', 'config_group', 'group1', $availablefromgroup,
                                            array('&nbsp;&nbsp; &nbsp;', '</br>'), false);

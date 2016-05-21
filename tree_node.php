@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 require_once('../../config.php');
 require_once(dirname(__FILE__) . '/class_tree.php');
 $opertaion = optional_param('operation', ' ', PARAM_TEXT);
@@ -24,10 +39,12 @@ if (isset($opertaion)) {
                 $rslt = array();
                 foreach ($temp as $v) {
                     $treeinfo = $DB->get_record('block_interactivetree_data', array('id' => $v->id));
-                    if ($treeinfo->url != null)
+                    if ($treeinfo->url != null){
                         $url = $treeinfo->url;
-                    else
+                    }
+                    else{
                         $url = '#';                   
+                    }
                     $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1),'a_attr' => array('href' => $url));
                 }                
                 break;
@@ -40,13 +57,14 @@ if (isset($opertaion)) {
                 } else {
                     $temp = $fs->get_node((int) $node[0], array('with_path' => true));
                     $rslt = array('content' => 'Selected: /' . implode('/', array_map(function ($v) {
-                                            return $v->nm;
-                                        }, $temp->path)) . '/' . $temp->nm);
+                                                                                return $v->nm;
+                                                                            },
+                                                                            $temp->path)) . '/' . $temp->nm);
                 }
                 break;
             
             case 'create_node':
-               if( has_capability('block/interactivetree:manage', $blockcontext)){
+               if( has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
                     $temp = $fs->createnode($node, isset($position) ? (int) $position : 0, array('nm' => isset($text) ? $text : 'New node'));
                     $rslt = array('id' => $temp);
@@ -54,14 +72,14 @@ if (isset($opertaion)) {
                 break;
             
             case 'rename_node':
-                if( has_capability('block/interactivetree:manage', $blockcontext)){
+                if( has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
                     $rslt = $fs->renamenode($node, array('nm' => isset($text) ? $text : 'Renamed node'));
                 }
                 break;
             
             case 'delete_node':
-                if( has_capability('block/interactivetree:manage', $blockcontext)){
+                if( has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
                     $rslt = $fs->removenode($node);
                 }

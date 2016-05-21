@@ -1,4 +1,3 @@
-
 function interactive_jstree(Y, capability){
     $(window).resize(function () {
         var h = Math.max($(window).height() - 0, 420);
@@ -9,36 +8,36 @@ function interactive_jstree(Y, capability){
         .jstree({
             'core': {
                     'data': {
-                            'url': M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_node',
-                            'data': function (node) {
-                            return {'id':node.id }
+                        'url': M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_node',
+                        'data': function (node) {
+                        return {'id':node.id }
                         }
                     },
                     'check_callback': true,
                     'themes': {
-                              'responsive': false
-                            }
-                    },        
-            "types" : {  
+                        'responsive': false
+                        }
+                    },       
+            "types" : {
                     "default" : {
-                                "icon":'none'     
-                            }
+                        "icon":'none'     
+                        }
                     },
 
             'plugins': ['state', 'contextmenu', 'wholerow','types'],
        	    contextmenu: {
                 "items": function () {
-                            if (capability == 0) {               
-                                return {
-                                        "create":false,
-                                        "rename":false,
-                                        "delete":false
-                                    }
-                            } else {                
-                                var tmp = $.jstree.defaults.contextmenu.items();
-                                return tmp;
-                            }
-                        }        
+                    if (capability == 0) {               
+                        return {
+                            "create":false,
+                            "rename":false,
+                            "delete":false
+                        }
+                    } else {                
+                        var tmp = $.jstree.defaults.contextmenu.items();
+                        return tmp;
+                    }
+                }
             }
         })
        .bind("select_node.jstree", function (e, data) {
@@ -49,14 +48,14 @@ function interactive_jstree(Y, capability){
         })
 
         .on('delete_node.jstree', function (e, data) {
-            $.get( M.cfg.wwwroot +'/blocks/interactivetree/tree_node.php?operation=delete_node', {'id': data.node.id})
+            $.get( M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=delete_node', {'id': data.node.id})
                 .fail(function () {
                     data.instance.refresh();
                 });
         })
         
         .on('create_node.jstree', function (e, data) {
-            $.get( M.cfg.wwwroot +'/blocks/interactivetree/tree_node.php?operation=create_node',
+            $.get( M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=create_node',
                   {'id': data.node.parent, 'position': data.position, 'text': data.node.text})
                         .done(function (d) {
                             data.instance.set_id(data.node, d.id);
@@ -67,7 +66,7 @@ function interactive_jstree(Y, capability){
         })
         
         .on('rename_node.jstree', function (e, data) {
-            $.get( M.cfg.wwwroot +'/blocks/interactivetree/tree_node.php?operation=rename_node',
+            $.get( M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=rename_node',
                   {'id': data.node.id, 'text': data.text})
                         .fail(function () {
                             data.instance.refresh();
@@ -76,15 +75,13 @@ function interactive_jstree(Y, capability){
            
         .on('changed.jstree', function (e, data) {
             if (data && data.selected && data.selected.length) {
-                $.get( M.cfg.wwwroot +'/blocks/interactivetree/tree_node.php?operation=get_content&id=' + data.selected.join(':'),
+                $.get( M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_content&id=' + data.selected.join(':'),
                       function (d) {                        
                         $('#data .default').html(d.content).show();
                     });
-                }
-                else {
-                    $('#data .content').hide();
-                    $('#data .default').html('Select a file from the tree.').show();
-                }
-            });
-
+            } else {
+                $('#data .content').hide();
+                $('#data .default').html('Select a file from the tree.').show();
+            }
+        });
 }// end of function

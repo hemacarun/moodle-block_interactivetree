@@ -41,7 +41,7 @@ class block_interactivetree extends block_base {
         $this->blockname = get_class($this);
         $this->title = get_string('pluginname', 'block_interactivetree');
     }
-	
+
     /**
      * All multiple instances of this block
      * @return bool Returns true
@@ -130,8 +130,8 @@ class block_interactivetree extends block_base {
         $this->content->icons = array();
         $this->content->footer = '';
         $this->page->navigation->initialise();
-		$this->interactivetree_addurl();
-        if (isloggedin()) {
+        $this->interactivetree_addurl();
+		if (isloggedin()) {
             $this->content = new stdClass;
             $this->content->text = '<div id="block_interactivetree_main">
 	                    <div id="block_interactivetree_container" role="main">
