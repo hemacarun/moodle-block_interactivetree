@@ -38,14 +38,14 @@ class block_interactivetree extends block_base {
     protected $docked = null;
 
     public function init() {
-        $this->blockname = get_class($this);      
+        $this->blockname = get_class($this);    
         $this->title = get_string('pluginname', 'block_interactivetree');
     }
 	
     /**
-    * All multiple instances of this block
-    * @return bool Returns true
-    */
+     * All multiple instances of this block
+     * @return bool Returns true
+     */
     public function instance_allow_multiple() {
         return true;
     }
@@ -90,13 +90,13 @@ class block_interactivetree extends block_base {
         $PAGE->requires->jquery();
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.min.js', true);
         $context = $PAGE->context;
-	    $PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js', true);        
+	    $PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js', true);
         if (is_siteadmin() || has_capability('block/interactivetree:manage', $context)) {
             $capabality = 1;
         } else {
-            $capabality = 0;        
+            $capabality = 0;
         }
-	    $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);	
+	    $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);
     }
 
     public function interactivetree_addurl() {
@@ -130,7 +130,7 @@ class block_interactivetree extends block_base {
         $this->content->icons = array();
         $this->content->footer = '';
         $this->page->navigation->initialise();
-        $this->interactivetree_addurl();				
+        $this->interactivetree_addurl();		
         if (isloggedin()) {
             $this->content = new stdClass;
             $this->content->text = '<div id="block_interactivetree_main">

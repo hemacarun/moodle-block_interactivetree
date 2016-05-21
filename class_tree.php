@@ -17,15 +17,14 @@
 defined('MOODLE_INTERNAL') || die();
 require_once('../../config.php');
 
-// TO DO: better exceptions, use params
 class block_interactivetree_manage {    
     
     public function get_node($id, $options = array()) {
-        global $DB;		
-        $sql = "SELECT s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm 
-			    FROM {block_interactivetree_struct} as  s, {block_interactivetree_data} as d 
+        global $DB;
+        $sql = "SELECT s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos, d.nm
+			    FROM {block_interactivetree_struct} as  s, {block_interactivetree_data} as d
 			    WHERE s.id = d.id AND s.id = ? ";
-        $node = $DB->get_record_sql($sql, array($id));        
+        $node = $DB->get_record_sql($sql, array($id));
         if (!$node) {
             throw new Exception('Node does not exist');
         }
@@ -63,9 +62,9 @@ class block_interactivetree_manage {
         $sql = false;
         if ($node) {
             $sql = "SELECT  s.id, s.lft, s.rgt, s.lvl, s.pid, s.pos , d.nm
-		    FROM  {block_interactivetree_struct} s,{block_interactivetree_data} d
-		    WHERE s.id = d.id AND s.lft < :osleft  AND
-		    s.rgt > :osright  ORDER BY  s.lft ";
+		    FROM  {block_interactivetree_struct} s, {block_interactivetree_data} d
+		    WHERE s.id = d.id AND s.lft < :osleft AND
+		    s.rgt > :osright ORDER BY s.lft";
         }
         return $sql ? $DB->get_records_sql($sql, array('osleft' => $node->lft, 'osright' => $node->rgt)) : false;
     }
@@ -84,15 +83,15 @@ class block_interactivetree_manage {
             $position = count($parent->children);
         }
         $sql = array();
-        // PREPARE NEW PARENT 
-        // Update positions of all next elements
+        // PREPARE NEW PARENT.
+        // Update positions of all next elements.
         $sql[] = "UPDATE {block_interactivetree_struct}
 		    SET pos = pos + 1
 		    WHERE pid  = :parentstructureid  AND
-		    pos  >=:position";		  
+		    pos  >= :position";
         $params[] = array('parentstructureid' => $parent->id, 'position' => $position);
         
-        // Update left indexes
+        // Update left indexes.
         $refleft = false;
         if (!$parent->children) {
             $refleft = $parent->rgt;
@@ -102,15 +101,15 @@ class block_interactivetree_manage {
             $position = (int) $position;
             $parentchild = $parent->children;
             $parentpos = $parentchild->$position;
-            $parentpos_left = $parentpos->lft;            
+            $parentpos_left = $parentpos->lft;
             $refleft = $parentpos_left;
         }
         $sql[] = "UPDATE {block_interactivetree_struct}
-		    SET lft = lft + 2
-		    WHERE lft  >= :ref ";
-        $params[] = array('ref' => $refleft );       
+		         SET lft = lft + 2
+		         WHERE lft  >= :ref";
+        $params[] = array('ref' => $refleft);
 
-        // Update right indexes
+        // Update right indexes.
         $refright = false;
         if (!$parent->children) {
             $refright = $parent->rgt;
@@ -120,13 +119,13 @@ class block_interactivetree_manage {
             $position = (int) $position;
             $parentchild = $parent->children;
             $parentpos = $parentchild->$position;
-            $parentpos_left = $parentpos->lft;            
+            $parentpos_left = $parentpos->lft;
             $refright = $parentpos_left + 1;
         }
         $sql[] = "UPDATE {block_interactivetree_struct}
 		         SET  rgt = rgt + 2
 		         WHERE rgt >= :refright";
-        $params[] = array('refright' => $refright );        
+        $params[] = array('refright' => $refright);    
         
         $insert_temp = new Stdclass();
 		$insert_temp->id = null;
@@ -171,27 +170,27 @@ class block_interactivetree_manage {
 
         $sql = array();
 	    $params = array();
-        // Deleting node and its children from structure
+        // Deleting node and its children from structure.
         $sql[] = "DELETE FROM {block_interactivetree_struct}
-		         WHERE lft >= :osleft  AND rgt <= :osright AND id = :osid ";
+		          WHERE lft >= :osleft  AND rgt <= :osright AND id = :osid ";
         $params[] = array('osleft' => $data->lft, 'osright' => $data->rgt, 'osid' => $data->id);
 	
-        // Shift left indexes of nodes right of the node
+        // Shift left indexes of nodes right of the node.
         $sql[] = "UPDATE {block_interactivetree_struct}
 			      SET lft = lft - :setleft WHERE lft > :osleft";
         $params[]= array('setleft'=> $dif ,'osleft'=> $data->rgt);
 		
-        // Shift right indexes of nodes right of the node and the node's parents
+        // Shift right indexes of nodes right of the node and the node's parents.
         $sql[] = "UPDATE {block_interactivetree_struct }
-				SET rgt = rgt - :setright WHERE rgt > :osright";
+				  SET rgt = rgt - :setright WHERE rgt > :osright";
         $params[]= array('setright'=> $dif, 'osright'=> $data->lft );
 		
-        // Update position of siblings below the deleted node
+        // Update position of siblings below the deleted node.
         $sql[] = "UPDATE {block_interactivetree_struct }
-				SET pos = pos - 1  WHERE pid = :osparentid  AND pos > :ospos";
+				  SET pos = pos - 1  WHERE pid = :osparentid  AND pos > :ospos";
 	    $params[]= array('osparentid'=> $data->pid ,'ospos'=>$data->pos );
 		
-        // Delete from data table       
+        // Delete from data table.       
             $tmp = array();
             $tmp[] = (int) $data->id;
             if ($data->children && is_array($data->children)) {
@@ -218,13 +217,13 @@ class block_interactivetree_manage {
             throw new Exception('Could not rename non-existing node');
         }
 
-        $tmp = array();       
+        $tmp = array();
         if (isset($data['nm'])) {
             $tmp['nm'] = $data['nm'];
-        }      
+        }
         if (count($tmp)) {
             $tmp['id'] = $id;
-            $sql = "INSERT INTO {block_interactivetree_data} (" . implode(',', array_keys($tmp)) . ") 
+            $sql = "INSERT INTO {block_interactivetree_data} (" . implode(',', array_keys($tmp)) . ")
 					VALUES(?" . str_repeat(',?', count($tmp) - 1) . ") ON DUPLICATE KEY UPDATE
 					" . implode(' = ?, ', array_keys($tmp)) . " = ?";
             $par = array_merge(array_values($tmp), array_values($tmp));
