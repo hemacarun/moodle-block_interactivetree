@@ -48,7 +48,7 @@ $capabilities = array(
 
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
-    
+ 
      'block/interactivetree:manage' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
 

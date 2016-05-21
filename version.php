@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Version details
  *

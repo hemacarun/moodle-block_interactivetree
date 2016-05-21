@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,19 +23,19 @@
  */
 function xmldb_block_interactivetree_install() {
     global $DB;
-    $temp_treedata = new stdClass();
-    $temp_treedata->id = 1;
-    $temp_treedata->nm = 'root';
-    $temp_treedata->url = null;
+    $temptreedata = new stdClass();
+    $temptreedata->id = 1;
+    $temptreedata->nm = 'root';
+    $temptreedata->url = null;
     $DB->insert_record('block_interactivetree_data', $temp_treedata);
 
-    $temp_treestruct = new stdClass();
-    $temp_treestruct->id = 1;
-    $temp_treestruct->lft = 1;
-    $temp_treestruct->rgt = 12;
-    $temp_treestruct->lvl = 0;
-    $temp_treestruct->pid = 0;
-    $temp_treestruct->pos = 0;
+    $temptreestruct = new stdClass();
+    $temptreestruct->id = 1;
+    $temptreestruct->lft = 1;
+    $temptreestruct->rgt = 12;
+    $temptreestruct->lvl = 0;
+    $temptreestruct->pid = 0;
+    $temptreestruct->pos = 0;
     $DB->insert_record('block_interactivetree_struct', $temp_treestruct);
 
 
