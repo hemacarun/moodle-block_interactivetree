@@ -16,16 +16,16 @@ $instance = $DB->get_record('block_instances', array('blockname' => 'interactive
 $blockcontext =  context_block::instance($instance->id);
 
 if (isset($opertaion)) {
-    $fs = new block_interactivetree_manage(array('structure_table' => 'block_interactivetree_struct', 'data_table' => 'block_interactivetree_data', 'data' => array('nm')));
+    $fs = new block_interactivetree_manage();
 
     try {
        //  $context = $PAGE->context;
         $rslt = null;
         switch ($opertaion) {
-            case 'analyze':
-                var_dump($fs->analyze(true));
-                die();
-                break;
+            //case 'analyze':
+            //    var_dump($fs->analyze(true));
+            //    die();
+            //    break;
             case 'get_node':
                 $node = isset($id) && $id !== '#' ? (int) $id : 0;
                 $temp = $fs->get_children($node);
@@ -38,8 +38,6 @@ if (isset($opertaion)) {
                         $url = $treeinfo->url;
                     else
                         $url = '#';
-
-
                    // $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft >= 1), 'a_attr' => array('href' => $url));
                      $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1),'a_attr' => array('href' => $url));
                 }
@@ -51,9 +49,7 @@ if (isset($opertaion)) {
                 if (count($node) > 1) {
                     $rslt = array('content' => 'Multiple selected');
                 } else {
-                    $temp = $fs->get_node((int) $node[0], array('with_path' => true));
-
-                
+                    $temp = $fs->get_node((int) $node[0], array('with_path' => true));                
                     $rslt = array('content' => 'Selected: /' . implode('/', array_map(function ($v) {
                                             return $v->nm;
                                         }, $temp->path)) . '/' . $temp->nm);
@@ -62,36 +58,22 @@ if (isset($opertaion)) {
             case 'create_node':
                if( has_capability('block/interactivetree:manage', $blockcontext)){
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                    $temp = $fs->mk($node, isset($position) ? (int) $position : 0, array('nm' => isset($text) ? $text : 'New node'));
+                    $temp = $fs->createnode($node, isset($position) ? (int) $position : 0, array('nm' => isset($text) ? $text : 'New node'));
                     $rslt = array('id' => $temp);
                 }
                 break;
             case 'rename_node':
                 if( has_capability('block/interactivetree:manage', $blockcontext)){
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                    $rslt = $fs->rn($node, array('nm' => isset($text) ? $text : 'Renamed node'));
+                    $rslt = $fs->renamenode($node, array('nm' => isset($text) ? $text : 'Renamed node'));
                 }
                 break;
             case 'delete_node':
                 if( has_capability('block/interactivetree:manage', $blockcontext)){ 
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                    $rslt = $fs->rm($node);
+                    $rslt = $fs->removenode($node);
                 }
-                break;
-            case 'move_node':
-                if( has_capability('block/interactivetree:manage', $blockcontext)){  
-                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                    $parn = isset($parent) && $parent !== '#' ? (int) $parent : 0;
-                    $rslt = $fs->mv($node, $parn, isset($position) ? (int) $position : 0);
-                }
-                break;
-            case 'copy_node':
-                if( has_capability('block/interactivetree:manage', $blockcontext)){ 
-                    $node = isset($id) && $id !== '#' ? (int) $id : 0;
-                    $parn = isset($parent) && $parent !== '#' ? (int) $parent : 0;
-                    $rslt = $fs->cp($node, $parent, isset($position) ? (int) $position : 0);
-                }
-                break;
+                break;          
             default:
                 throw new Exception('Unsupported operation: ' . $operation);
                 break;
