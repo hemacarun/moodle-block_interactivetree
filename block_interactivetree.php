@@ -1,10 +1,12 @@
 <?php
-// This software is free software: you can redistribute it and/or modify
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// This Moodle block is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -39,11 +41,11 @@ class block_interactivetree extends block_base {
         $this->blockname = get_class($this);        
         $this->title = get_string('pluginname', 'block_interactivetree');
 	}
-	/**
-     * All multiple instances of this block
-     * @return bool Returns true
-     */
-    function instance_allow_multiple() {
+  /**
+  * All multiple instances of this block
+  * @return bool Returns true
+  */
+    public function instance_allow_multiple() {
         return true;
     }
 
@@ -51,11 +53,11 @@ class block_interactivetree extends block_base {
      * Set the applicable formats for this block to all
      * @return array
      */
-    function applicable_formats() {
+    public function applicable_formats() {
         return array('all' => true);
     }
 
-    function specialization() {
+    public function specialization() {
         if ($this->title == '') {
             $this->title = format_string(get_string('pluginname', 'block_interactivetree'));
         }
@@ -64,7 +66,7 @@ class block_interactivetree extends block_base {
      * Allow the user to configure a block instance
      * @return bool Returns true
      */
-    function instance_allow_config() {
+    public function instance_allow_config() {
         return true;
     }
 
@@ -74,15 +76,15 @@ class block_interactivetree extends block_base {
      *
      * @return false
      */
-    function instance_can_be_hidden() {
+    public function instance_can_be_hidden() {
         return true;
     }
 
-    function instance_can_be_docked() {
+    public function instance_can_be_docked() {
         return (!empty($this->title) && parent::instance_can_be_docked());
     }
 
-    function get_required_javascript() {
+    public function get_required_javascript() {
         global $PAGE;
         $PAGE->requires->jquery();
         $PAGE->requires->js('/blocks/interactivetree/dist/jstree.min.js', true);

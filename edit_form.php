@@ -9,7 +9,7 @@
 class block_interactivetree_edit_form extends block_edit_form {
 
     protected function specific_definition($mform) {
-        global $CFG, $DB;
+        global $DB;
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
@@ -37,7 +37,7 @@ class block_interactivetree_edit_form extends block_edit_form {
         $node = $mform->getElementValue('config_node');
         if ($node[0] > 0) {
             $availablefromgroup = array();
-            foreach ($node as $key => $value) {
+            foreach ($node as $value) {
                 $nodeinfo = $DB->get_record('block_interactivetree_data', array('id' => $value));
                 $nodename = $nodeinfo->nm;
                 $nodeid = $nodeinfo->id;
