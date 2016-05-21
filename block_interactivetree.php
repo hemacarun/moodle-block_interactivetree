@@ -37,9 +37,9 @@ class block_interactivetree extends block_base {
     /** @var bool|null */
     protected $docked = null;
 
-    public function init() {    
+    public function init(){    
         $this->blockname = get_class($this);        
-        $this->title = get_string('pluginname', 'block_interactivetree');
+        $this->title = get_string('pluginname','block_interactivetree');
 	}
   /**
   * All multiple instances of this block
@@ -92,14 +92,11 @@ class block_interactivetree extends block_base {
 	    $PAGE->requires->js('/blocks/interactivetree/js/custom_jstree.js', true);
         
         if (is_siteadmin() || has_capability('block/interactivetree:manage', $context)) {
-	   $capabality=1;
-          //  $PAGE->requires->js('/blocks/interactivetree/js/custom.js');
+            $capabality = 1;      
         } else {
-           $capabality=0;
-           // $PAGE->requires->js('/blocks/interactivetree/js/custom_withoutaction.js');
+            $capabality = 0;        
         }
-	 $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);
-	
+	    $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);	
     }
 
     function interactivetree_addurl() {
@@ -108,13 +105,10 @@ class block_interactivetree extends block_base {
 
         if (isset($formcontent->node)) {
             foreach ($formcontent->node as  $value) {
-
                 $temp = new stdClass();
                 $exists_data = $DB->get_record('block_interactivetree_data', array('id' => $value));
-
                 if (isset($formcontent->$value)) {
-                    if ($exists_data->url != $formcontent->$value && !empty($formcontent->$value)) {
-
+                    if ($exists_data->url != $formcontent->$value && !empty($formcontent->$value)) { 
                         $temp->id = $value;
                         $temp->nm = $exists_data->nm;
                         $temp->url = $formcontent->$value;
@@ -126,40 +120,28 @@ class block_interactivetree extends block_base {
     }
 
     function get_content() {
-
         global $PAGE;
         $PAGE->requires->css('/blocks/interactivetree/css/style.css');
         $PAGE->requires->css('/blocks/interactivetree/dist/themes/default/style.min.css');
-       // $systemcontext = context_system::instance();
-
         if ($this->content !== NULL) {
             return $this->content;
         }
-
         $this->content = new stdClass;
         $this->content->items = array();
         $this->content->icons = array();
         $this->content->footer = '';
-
-
         $this->page->navigation->initialise();
-        $this->interactivetree_addurl();
-	
-				
+        $this->interactivetree_addurl();				
         if (isloggedin()) {
             $this->content = new stdClass;
             $this->content->text = '<div id="block_interactivetree_main">
-	                 <div id="block_interactivetree_container" role="main">
-			<div id="block_interactivetree_tree"></div>
-			<div id="block_interactivetree_data">
-				<div class="block_interactivetree_content block_interactivetree_code" style="display:none;"><textarea id="block_interactivetree_code" readonly="readonly"></textarea></div>
-
-
-			</div>
-		        </div>
-		        </div>';
-
-
+	                    <div id="block_interactivetree_container" role="main">
+			                <div id="block_interactivetree_tree"></div>
+			                    <div id="block_interactivetree_data">
+				                    <div class="block_interactivetree_content block_interactivetree_code" style="display:none;"><textarea id="block_interactivetree_code" readonly="readonly"></textarea></div>
+			                    </div>
+		                    </div>
+		                </div>';
             return $this->content;
         }
     }
