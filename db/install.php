@@ -36,6 +36,5 @@ function xmldb_block_interactivetree_install() {
     $temptreestruct->lvl = 0;
     $temptreestruct->pid = 0;
     $temptreestruct->pos = 0;
-    $DB->insert_record('block_interactivetree_struct', $temptreestruct);
-    
+    $DB->insert_record('block_interactivetree_struct', $temptreestruct);    
 }

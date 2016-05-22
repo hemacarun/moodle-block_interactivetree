@@ -96,7 +96,7 @@ class block_interactivetree extends block_base {
         } else {
             $capabality = 0;
         }
-	    $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);
+        $PAGE->requires->js_init_call('interactive_jstree', array($capabality), false);
     }
 
     public function interactivetree_addurl() {
@@ -107,7 +107,7 @@ class block_interactivetree extends block_base {
                 $temp = new stdClass();
                 $existsdata = $DB->get_record('block_interactivetree_data', array('id' => $value));
                 if (isset($formcontent->$value)) {
-                    if ($existsdata->url != $formcontent->$value && !empty($formcontent->$value)) { 
+                    if ($existsdata->url != $formcontent->$value && !empty($formcontent->$value)) {
                         $temp->id = $value;
                         $temp->nm = $existsdata->nm;
                         $temp->url = $formcontent->$value;
@@ -131,7 +131,7 @@ class block_interactivetree extends block_base {
         $this->content->footer = '';
         $this->page->navigation->initialise();
         $this->interactivetree_addurl();
-		if (isloggedin()) {
+        if (isloggedin()) {
             $this->content = new stdClass;
             $this->content->text = '<div id="block_interactivetree_main">
 	                    <div id="block_interactivetree_container" role="main">
@@ -146,5 +146,4 @@ class block_interactivetree extends block_base {
             return $this->content;
         }
     }
-
 }
