@@ -17,7 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once('../../config.php');
 
-class block_interactivetree_manage {   
+class block_interactivetree_manage {
 
     public function get_node($id, $options = array()) {
         global $DB;
@@ -68,9 +68,9 @@ class block_interactivetree_manage {
         }
         return $sql ? $DB->get_records_sql($sql, array('osleft' => $node->lft, 'osright' => $node->rgt)) : false;
     }
-	
-	public function createnode($parent, $position = 0, $data = array()) {
-        global $DB;
+
+    public function createnode($parent, $position = 0, $data = array()) {
+		global $DB;
         $parent = (int) $parent;
         if ($parent == 0) {
             throw new Exception('Parent is 0');
@@ -91,12 +91,12 @@ class block_interactivetree_manage {
 		    pos  >= :position";
         $params[] = array('parentstructureid' => $parent->id, 'position' => $position);
 		// Update left indexes.
-        $refleft = false;
+		$refleft = false;
         if (!$parent->children) {
             $refleft = $parent->rgt;
         } else if (!isset($parent->children[$position])) {
                 $refleft = $parent->rgt;
-        } else {
+            } else {
                 $position = (int) $position;
                 $parentchild = $parent->children;
                 $parentpos = $parentchild->$position;
