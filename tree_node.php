@@ -29,10 +29,10 @@ $blockcontext =  context_block::instance($instance->id);
 
 if (isset($opertaion)) {
     $fs = new block_interactivetree_manage();
-    try {       
+    try {
         $rslt = null;
         switch ($opertaion) {
-         
+
             case 'get_node':
                 $node = isset($id) && $id !== '#' ? (int) $id : 0;
                 $temp = $fs->get_children($node);
@@ -43,12 +43,12 @@ if (isset($opertaion)) {
                         $url = $treeinfo->url;
                     }
                     else{
-                        $url = '#';                   
+                        $url = '#';
                     }
                     $rslt[] = array('id' => $v->id, 'text' => $v->nm, 'children' => ($v->rgt - $v->lft > 1),'a_attr' => array('href' => $url));
-                }                
+                }
                 break;
-            
+
             case "get_content":
                 $node = isset($id) && $id !== '#' ? $id : 0;
                 $node = explode(':', $node);
@@ -62,7 +62,7 @@ if (isset($opertaion)) {
                                                                             $temp->path)) . '/' . $temp->nm);
                 }
                 break;
-            
+
             case 'create_node':
                if( has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
@@ -70,26 +70,26 @@ if (isset($opertaion)) {
                     $rslt = array('id' => $temp);
                 }
                 break;
-            
+
             case 'rename_node':
                 if( has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
                     $rslt = $fs->renamenode($node, array('nm' => isset($text) ? $text : 'Renamed node'));
                 }
                 break;
-            
+
             case 'delete_node':
                 if( has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
                     $rslt = $fs->removenode($node);
                 }
                 break;
-            
+
             default:
                 throw new Exception('Unsupported operation: ' . $operation);
                 break;
         }
-        header('Content-Type: application/json; charset=utf-8');        
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode($rslt);
     } catch (Exception $e) {
         header($_SERVER["SERVER_PROTOCOL"] . ' 500 Server Error');

@@ -229,4 +229,3 @@ class block_interactivetree_manage {
         return true;
     }
 }
-	

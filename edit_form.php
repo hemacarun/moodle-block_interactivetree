@@ -18,7 +18,7 @@ class block_interactivetree_edit_form extends block_edit_form {
         $select->setMultiple(true);
         $mform->setDefault('config_node', '');
         $mform->setType('config_node', PARAM_MULTILANG);
-        
+
         $mform->registerNoSubmitButton('addurl');
         $mform->addElement('submit', 'addurl', get_string('addurl', 'block_interactivetree'));
 

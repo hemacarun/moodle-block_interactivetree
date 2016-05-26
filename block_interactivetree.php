@@ -134,15 +134,15 @@ class block_interactivetree extends block_base {
         if (isloggedin()) {
             $this->content = new stdClass;
             $this->content->text = '<div id="block_interactivetree_main">
-	                    <div id="block_interactivetree_container" role="main">
-			                <div id="block_interactivetree_tree"></div>
-			                    <div id="block_interactivetree_data">
-				                    <div class="block_interactivetree_content block_interactivetree_code" style="display:none;">
-									    <textarea id="block_interactivetree_code" readonly="readonly"></textarea>
-									</div>
-			                    </div>
-		                    </div>
-		                </div>';
+                        <div id="block_interactivetree_container" role="main">
+                            <div id="block_interactivetree_tree"></div>
+                                <div id="block_interactivetree_data">
+                                    <div class="block_interactivetree_content block_interactivetree_code" style="display:none;">
+                                        <textarea id="block_interactivetree_code" readonly="readonly"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>';
             return $this->content;
         }
     }
