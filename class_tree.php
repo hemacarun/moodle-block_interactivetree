@@ -173,18 +173,18 @@ class block_interactivetree_manage {
         $sql[] = "UPDATE {block_interactivetree_struct}
 			      SET lft = lft - :setleft WHERE lft > :osleft";
         $params[] = array('setleft' => $dif ,'osleft' => $data->rgt);
-		
+
         // Shift right indexes of nodes right of the node and the node's parents.
         $sql[] = "UPDATE {block_interactivetree_struct }
 				  SET rgt = rgt - :setright WHERE rgt > :osright";
         $params[] = array('setright' => $dif, 'osright' => $data->lft );
-		
+
         // Update position of siblings below the deleted node.
         $sql[] = "UPDATE {block_interactivetree_struct }
 				  SET pos = pos - 1  WHERE pid = :osparentid  AND pos > :ospos";
 	    $params[] = array('osparentid' => $data->pid ,'ospos' => $data->pos );
-		
-		// Delete from data table.       
+
+		// Delete from data table.
         $tmp = array();
         $tmp[] = (int) $data->id;
         if ($data->children && is_array($data->children)) {
@@ -193,7 +193,7 @@ class block_interactivetree_manage {
             }
         }
         $sql[] = "DELETE FROM {block_interactivetree_data} WHERE id IN (" . implode(',', $tmp) . ")";
-       
+
         foreach ($sql as $k => $v) {
             try {
                 $DB->execute($v, $params[$k]);
@@ -229,3 +229,4 @@ class block_interactivetree_manage {
         return true;
     }
 }
+	
