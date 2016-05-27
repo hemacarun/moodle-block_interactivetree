@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
-*  Used to define settings of the block interactive tree
-*/
+ *  Used to define settings of the block interactive tree
+ */
 class block_interactivetree_edit_form extends block_edit_form {
 
     protected function specific_definition($mform) {
