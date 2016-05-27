@@ -23,7 +23,7 @@ $position  = optional_param('position', 0, PARAM_INT);
 $text      = optional_param('text', ' ', PARAM_TEXT);
 global $CFG, $DB, $OUTPUT, $PAGE;
 
-// Getting block context level
+// Getting block context level.
 $instance     = $DB->get_record('block_instances', array(
     'blockname' => 'interactivetree'
 ), '*', MUST_EXIST);
@@ -34,7 +34,7 @@ if (isset($opertaion)) {
     try {
         $rslt = null;
         switch ($opertaion) {
-            
+
             case 'get_node':
                 $node = isset($id) && $id !== '#' ? (int) $id : 0;
                 $temp = $fs->get_children($node);
@@ -58,7 +58,7 @@ if (isset($opertaion)) {
                     );
                 }
                 break;
-            
+
             case "get_content":
                 $node = isset($id) && $id !== '#' ? $id : 0;
                 $node = explode(':', $node);
@@ -77,7 +77,7 @@ if (isset($opertaion)) {
                     );
                 }
                 break;
-            
+
             case 'create_node':
                 if (has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
@@ -89,7 +89,7 @@ if (isset($opertaion)) {
                     );
                 }
                 break;
-            
+
             case 'rename_node':
                 if (has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
@@ -98,22 +98,21 @@ if (isset($opertaion)) {
                     ));
                 }
                 break;
-            
+
             case 'delete_node':
                 if (has_capability('block/interactivetree:manage', $blockcontext)) {
                     $node = isset($id) && $id !== '#' ? (int) $id : 0;
                     $rslt = $fs->removenode($node);
                 }
                 break;
-            
+
             default:
                 throw new Exception('Unsupported operation: ' . $operation);
                 break;
         }
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode($rslt);
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         header($_SERVER["SERVER_PROTOCOL"] . ' 500 Server Error');
         header('Status:  500 Server Error');
         echo $e->getMessage();

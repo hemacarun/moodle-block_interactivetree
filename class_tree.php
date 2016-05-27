@@ -35,7 +35,7 @@ class block_interactivetree_manage {
         }
         return $node;
     }
-    
+
     public function get_children($id, $recursive = false) {
         global $DB;
         $sql = false;
@@ -59,7 +59,7 @@ class block_interactivetree_manage {
         }
         return $response;
     }
-    
+
     public function get_path($id) {
         global $DB;
         $node = $this->get_node($id);
@@ -75,7 +75,7 @@ class block_interactivetree_manage {
             'osright' => $node->rgt
         )) : false;
     }
-    
+
     public function createnode($parent, $position = 0, $data = array()) {
         global $DB;
         $parent = (int) $parent;
@@ -150,8 +150,7 @@ class block_interactivetree_manage {
         foreach ($sql as $key => $values) {
             try {
                 $DB->execute($values, $params[$key]);
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 throw new Exception('Could not create');
             }
         }
@@ -163,7 +162,7 @@ class block_interactivetree_manage {
         }
         return $node;
     }
-    
+
     public function removenode($id) {
         global $DB;
         $id = (int) $id;
@@ -226,14 +225,13 @@ class block_interactivetree_manage {
         foreach ($sql as $k => $v) {
             try {
                 $DB->execute($v, $params[$k]);
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 throw new Exception('Could not remove');
             }
         }
         return true;
     }
-    
+
     public function renamenode($id, $data) {
         global $DB;
         $existingnode = $DB->get_record_sql("SELECT 1 AS res FROM {block_interactivetree_struct} WHERE id = $id");
@@ -252,8 +250,7 @@ class block_interactivetree_manage {
             $par       = array_merge(array_values($tmp), array_values($tmp));
             try {
                 $DB->execute($sql, $par);
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 throw new Exception('Could not rename');
             }
         }

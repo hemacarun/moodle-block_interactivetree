@@ -24,24 +24,24 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_interactivetree extends block_base {
-    
+
     /** @var int */
     public static $navcount;
-    
+
     /** @var string */
     public $blockname = null;
-    
+
     /** @var bool */
     protected $contentgenerated = false;
-    
+
     /** @var bool|null */
     protected $docked = null;
-    
+
     public function init() {
         $this->blockname = get_class($this);
         $this->title     = get_string('pluginname', 'block_interactivetree');
     }
-    
+
     /**
      * All multiple instances of this block
      * @return bool Returns true
@@ -49,7 +49,7 @@ class block_interactivetree extends block_base {
     public function instance_allow_multiple() {
         return true;
     }
-    
+
     /**
      * Set the applicable formats for this block to all
      * @return array
@@ -59,7 +59,7 @@ class block_interactivetree extends block_base {
             'all' => true
         );
     }
-    
+
     public function specialization() {
         if ($this->title == '') {
             $this->title = format_string(get_string('pluginname', 'block_interactivetree'));
@@ -72,7 +72,7 @@ class block_interactivetree extends block_base {
     public function instance_allow_config() {
         return true;
     }
-    
+
     /**
      * The navigation block cannot be hidden by default as it is integral to
      * the navigation of Moodle.
@@ -82,11 +82,11 @@ class block_interactivetree extends block_base {
     public function instance_can_be_hidden() {
         return true;
     }
-    
+
     public function instance_can_be_docked() {
         return (!empty($this->title) && parent::instance_can_be_docked());
     }
-    
+
     public function get_required_javascript() {
         global $PAGE;
         $PAGE->requires->jquery();
@@ -102,7 +102,7 @@ class block_interactivetree extends block_base {
             $capabality
         ), false);
     }
-    
+
     public function interactivetree_addurl() {
         global $DB;
         $formcontent = $this->config;
@@ -123,7 +123,7 @@ class block_interactivetree extends block_base {
             }
         }
     }
-    
+
     public function get_content() {
         global $PAGE;
         $PAGE->requires->css('/blocks/interactivetree/css/style.css');
