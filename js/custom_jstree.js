@@ -7,23 +7,22 @@ function interactive_jstree(Y, capability){
     $('#block_interactivetree_tree')
         .jstree({
             'core': {
-                    'data': {
-                        'url': M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_node',
-                        'data': function (node) {
+                'data': {
+                    'url': M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_node',
+                    'data': function (node) {
                         return {'id':node.id }
-                        }
-                    },
-                    'check_callback': true,
-                    'themes': {
-                        'responsive': false
-                        }
-                    },
+                    }
+                },
+                'check_callback': true,
+                'themes': {
+                    'responsive': false
+                }
+            },
             "types" : {
-                    "default" : {
-                        "icon":'none'
-                        }
-                    },
-
+                "default" : {
+                    "icon":'none'
+                }
+            },
             'plugins': ['state', 'contextmenu', 'wholerow','types'],
                contextmenu: {
                 "items": function () {
@@ -40,10 +39,10 @@ function interactive_jstree(Y, capability){
                 }
             }
         })
-       .bind("select_node.jstree", function (e, data) {
+        .bind("select_node.jstree", function (e, data) {
             var href = data.node.a_attr.href;
             $(".jstree-anchor").click(function() {
-               document.location.href = this;
+                document.location.href = this;
             });
         })
 
@@ -76,7 +75,7 @@ function interactive_jstree(Y, capability){
         .on('changed.jstree', function (e, data) {
             if (data && data.selected && data.selected.length) {
                 $.get( M.cfg.wwwroot + '/blocks/interactivetree/tree_node.php?operation=get_content&id=' + data.selected.join(':'),
-                      function (d) {
+                    function (d) {
                         $('#data .default').html(d.content).show();
                     });
             } else {
