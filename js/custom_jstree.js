@@ -24,7 +24,7 @@ function interactive_jstree(Y, capability){
                 }
             },
             'plugins': ['state', 'contextmenu', 'wholerow','types'],
-               contextmenu: {
+            contextmenu: {
                 "items": function () {
                     if (capability == 0) {
                         return {
