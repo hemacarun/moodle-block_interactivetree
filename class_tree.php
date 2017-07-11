@@ -251,7 +251,7 @@ class block_interactivetree_manage {
             try {
                 $DB->execute($sql, $par);
             } catch (Exception $e) {
-                throw new Exception('Could not rename');
+                throw new Exception('Could not rename the link');
             }
         }
         return true;
